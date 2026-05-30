@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: gemini-models-list
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
