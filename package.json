@@ -1,0 +1,23 @@
+{
+  "name": "gemini-api-tester",
+  "version": "1.0.0",
+  "description": "Alat za testiranje povezivanja sa Gemini API modelima i nalogom",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "gemini",
+    "api-tester",
+    "google-ai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^12.10.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}

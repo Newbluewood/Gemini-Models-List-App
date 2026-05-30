@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="sr" class="h-full bg-zinc-950 text-zinc-100 selection:bg-indigo-500 selection:text-white">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemini API & Model Connection Tester</title>
+  
+  <!-- Tailwind CSS v4 CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons for modern visuals -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts: Inter and Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    h1, h2, h3, .font-display {
+      font-family: 'Outfit', sans-serif;
+    }
+    .font-mono-custom {
+      font-family: 'Fira Code', monospace;
+    }
+    /* Custom glow animations */
+    @keyframes pulse-glow {
+      0%, 100% {
+        box-shadow: 0 0 15px 2px rgba(99, 102, 241, 0.2);
+        border-color: rgba(99, 102, 241, 0.4);
+      }
+      50% {
+        box-shadow: 0 0 25px 6px rgba(168, 85, 247, 0.4);
+        border-color: rgba(168, 85, 247, 0.6);
+      }
+    }
+    .active-glow {
+      animation: pulse-glow 3s infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-radial from-zinc-900 via-zinc-950 to-black overflow-x-hidden flex flex-col">
+
+  <!-- Glow Background Accents -->
+  <div class="absolute top-0 left-1/4 -translate-x-1/2 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute top-1/3 right-10 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+  <!-- Header -->
+  <header class="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <i class="fa-solid fa-brain text-white text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-zinc-100 to-zinc-400 bg-clip-text text-transparent flex items-center gap-2">
+            Gemini <span class="text-indigo-400 font-medium">Connection Tester</span>
+          </h1>
+          <p class="text-xs text-zinc-500">Razvojni alat za verifikaciju i testiranje Gemini modela</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3">
+        <!-- API Connection Status Badge -->
+        <div id="status-badge" class="px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 bg-zinc-900 border border-zinc-800 text-zinc-400">
+          <span class="w-2.5 h-2.5 rounded-full bg-zinc-500 inline-block animate-pulse"></span>
+          <span>Provera statusa...</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+    
+    <!-- Top status notification -->
+    <div id="alert-banner" class="hidden mb-6 p-4 rounded-2xl border flex items-start gap-3 transition-all duration-300">
+      <i id="alert-banner-icon" class="fa-solid mt-0.5 text-lg"></i>
+      <div>
+        <h4 id="alert-banner-title" class="font-semibold text-sm">Status</h4>
+        <p id="alert-banner-message" class="text-xs text-zinc-400 mt-0.5"></p>
+      </div>
+    </div>
+
+    <!-- Layout Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- LEFT COLUMN (Status & Models) - 5 Cols -->
+      <div class="lg:col-span-5 flex flex-col space-y-8">
+        
+        <!-- API Status & Key Details Card -->
+        <section class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800 rounded-3xl p-6 shadow-xl relative overflow-hidden group">
+          <div class="absolute -right-16 -top-16 w-36 h-36 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-all duration-500"></div>
+          
+          <h2 class="text-lg font-semibold tracking-tight text-white mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-key text-indigo-400 text-sm"></i>
+            API Konfiguracija i Status
+          </h2>
+          
+          <div class="space-y-4">
+            <!-- Key Configuration Block -->
+            <div class="p-4 rounded-2xl bg-zinc-950/60 border border-zinc-800/80">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-zinc-400 font-medium">GEMINI_API_KEY (.env)</span>
+                <span id="key-badge" class="px-2 py-0.5 rounded-md text-[10px] uppercase font-bold bg-zinc-800 text-zinc-400">Nije učitan</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span id="masked-key-value" class="text-sm font-mono-custom text-zinc-300">Nije dostupno</span>
+                <span id="key-length-indicator" class="text-xs text-zinc-500">0 karaktera</span>
+              </div>
+            </div>
+
+            <!-- Stats grid -->
+            <div class="grid grid-cols-2 gap-4">
+              <div class="p-3.5 rounded-2xl bg-zinc-950/40 border border-zinc-800/50 flex flex-col">
+                <span class="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">Gemini API Ruta</span>
+                <span class="text-xs text-zinc-300 font-medium mt-1 truncate">v1beta/models</span>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-zinc-950/40 border border-zinc-800/50 flex flex-col">
+                <span class="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">Latencija (Poslednja)</span>
+                <span id="latency-val" class="text-xs text-zinc-300 font-medium mt-1">-- ms</span>
+              </div>
+            </div>
+
+            <button id="btn-fetch-models" class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium text-sm transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer">
+              <i class="fa-solid fa-rotate text-xs animate-spin-hover"></i>
+              Preuzmi i Testiraj Modele
+            </button>
+          </div>
+        </section>
+
+        <!-- Model Selection Card -->
+        <section class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800 rounded-3xl p-6 shadow-xl flex-grow flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold tracking-tight text-white flex items-center gap-2">
+              <i class="fa-solid fa-cubes text-purple-400 text-sm"></i>
+              Gemini Modeli
+            </h2>
+            <span id="models-count" class="text-xs text-zinc-500 font-medium bg-zinc-950 px-2.5 py-1 rounded-full border border-zinc-800">0 modela</span>
+          </div>
+
+          <!-- Model search filter -->
+          <div class="relative mb-4">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"></i>
+            <input id="search-models" type="text" placeholder="Filtriraj modele..." class="w-full py-2.5 pl-10 pr-4 rounded-xl bg-zinc-950 border border-zinc-800/80 text-zinc-200 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 placeholder-zinc-500 transition-all duration-300">
+          </div>
+
+          <!-- Models List Box (Scrollable) -->
+          <div id="models-list-container" class="flex-grow overflow-y-auto space-y-3 pr-1 max-h-[360px] min-h-[220px]">
+            <!-- Skeleton items or fallback info -->
+            <div class="text-center py-12 text-zinc-500 border border-dashed border-zinc-800 rounded-2xl bg-zinc-950/20 flex flex-col items-center justify-center">
+              <i class="fa-solid fa-layer-group text-3xl mb-3 text-zinc-700"></i>
+              <p class="text-sm">Nema učitanih modela</p>
+              <p class="text-xs text-zinc-600 mt-1 max-w-[200px]">Kliknite dugme iznad da preuzmete listu modela sa vašeg naloga</p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- RIGHT COLUMN (Prompt Tester & Terminal JSON) - 7 Cols -->
+      <div class="lg:col-span-7 flex flex-col space-y-8">
+        
+        <!-- Interactive Prompt Tester -->
+        <section class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800 rounded-3xl p-6 shadow-xl flex flex-col relative">
+          <div class="absolute top-6 right-6 flex items-center space-x-2">
+            <span id="selected-model-badge" class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+              Nije selektovan model
+            </span>
+          </div>
+
+          <h2 class="text-lg font-semibold tracking-tight text-white mb-6 flex items-center gap-2">
+            <i class="fa-solid fa-paper-plane text-indigo-400 text-sm"></i>
+            Interaktivni Prompt Tester
+          </h2>
+
+          <div class="space-y-5">
+            <!-- Selected Model indicator -->
+            <div>
+              <label class="block text-xs text-zinc-500 font-semibold uppercase tracking-wider mb-2">Izabrani Gemini Model za Test</label>
+              <select id="select-active-model" class="w-full py-3 px-4 rounded-2xl bg-zinc-950 border border-zinc-800 text-zinc-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer">
+                <option value="" disabled selected>Prvo učitajte ili izaberite model iz kolone levo</option>
+              </select>
+            </div>
+
+            <!-- Configuration Parameters -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 p-4 rounded-2xl bg-zinc-950/40 border border-zinc-800/80">
+              <!-- Temperature slider -->
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-xs font-medium text-zinc-400">Temperatura (Kreativnost)</span>
+                  <span id="val-temp" class="text-xs font-mono-custom text-indigo-400 font-bold">1.0</span>
+                </div>
+                <input id="range-temp" type="range" min="0" max="2" step="0.1" value="1.0" class="w-full accent-indigo-500 bg-zinc-800 rounded-lg cursor-pointer h-1.5">
+              </div>
+
+              <!-- Max Output Tokens input -->
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-xs font-medium text-zinc-400">Maksimalno Tokena (Dužina)</span>
+                  <span class="text-[10px] text-zinc-500">(Opciono)</span>
+                </div>
+                <input id="input-tokens" type="number" placeholder="npr. 1024, 2048 ili ostavi prazno" class="w-full py-2 px-3 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-200 text-xs focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+              </div>
+            </div>
+
+            <!-- Prompt Text -->
+            <div id="dropzone-container" class="relative group">
+              <div class="flex items-center justify-between mb-2">
+                <label for="textarea-prompt" class="block text-xs text-zinc-500 font-semibold uppercase tracking-wider">Poruka / Prompt</label>
+                <span class="text-[10px] text-zinc-600 bg-zinc-900/50 px-2 py-0.5 rounded border border-zinc-800"><i class="fa-solid fa-file-import mr-1"></i>Prevuci fajl ovde</span>
+              </div>
+              <textarea id="textarea-prompt" rows="4" placeholder='Napišite nešto za Gemini... npr: "Analiziraj sliku u prilogu i ukloni robota !"' class="w-full py-3.5 px-4 rounded-2xl bg-zinc-950 border border-zinc-800 text-zinc-200 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 placeholder-zinc-600 transition-all duration-300 resize-none"></textarea>
+              
+              <!-- Drag Overlay -->
+              <div id="drag-overlay" class="absolute inset-0 top-6 bg-indigo-500/20 backdrop-blur-sm border-2 border-dashed border-indigo-400 rounded-2xl flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity z-10 hidden">
+                <i class="fa-solid fa-cloud-arrow-up text-3xl text-indigo-400 mb-2"></i>
+                <span class="text-sm font-bold text-indigo-300">Spusti fajl ovde</span>
+              </div>
+            </div>
+
+            <!-- Attached File Preview (Hidden by default) -->
+            <div id="attachment-preview" class="hidden mt-3 p-3 bg-indigo-950/20 border border-indigo-500/30 rounded-xl flex items-center justify-between">
+              <div class="flex items-center gap-3 overflow-hidden">
+                <div class="w-10 h-10 rounded-lg bg-zinc-900 flex flex-shrink-0 items-center justify-center border border-zinc-800" id="attachment-icon">
+                  <i class="fa-regular fa-file text-indigo-400 text-lg"></i>
+                </div>
+                <div class="flex flex-col min-w-0">
+                  <span class="text-xs font-semibold text-zinc-200 truncate" id="attachment-name">ime_fajla.png</span>
+                  <span class="text-[10px] text-zinc-500" id="attachment-size">1.2 MB</span>
+                </div>
+              </div>
+              <button id="btn-remove-attachment" class="w-8 h-8 rounded-full bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white transition-colors flex items-center justify-center cursor-pointer flex-shrink-0">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <button id="btn-submit-prompt" class="w-full py-3.5 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+              <i class="fa-solid fa-bolt text-xs"></i>
+              Pošalji Zahtev Modelu
+            </button>
+          </div>
+
+          <!-- RESPONSE BLOCK -->
+          <div id="response-block" class="hidden mt-6 border-t border-zinc-800 pt-6">
+            <h3 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <span class="flex h-2 w-2 relative">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+              Gemini Odgovor:
+            </h3>
+            
+            <div id="output-response" class="w-full p-5 rounded-2xl bg-zinc-950/70 border border-zinc-800 text-zinc-200 text-sm leading-relaxed overflow-y-auto max-h-[300px] whitespace-pre-wrap font-sans">
+              <!-- Response will be rendered here -->
+            </div>
+          </div>
+        </section>
+
+        <!-- Debug / JSON Payload Terminal console -->
+        <section class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800 rounded-3xl p-6 shadow-xl flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-semibold tracking-tight text-white flex items-center gap-2">
+              <i class="fa-solid fa-terminal text-zinc-400 text-xs"></i>
+              API JSON Konzola (Logs)
+            </h2>
+            <button id="btn-copy-log" class="text-xs py-1.5 px-3 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 transition-all flex items-center gap-1.5 cursor-pointer">
+              <i class="fa-regular fa-copy"></i>
+              Kopiraj
+            </button>
+          </div>
+
+          <!-- Terminal Tabs -->
+          <div class="flex border-b border-zinc-800 mb-4 text-xs font-medium">
+            <button id="tab-request" class="py-2.5 px-4 text-indigo-400 border-b-2 border-indigo-500 -mb-px focus:outline-none">Poslednji Zahtev (Request)</button>
+            <button id="tab-response" class="py-2.5 px-4 text-zinc-500 hover:text-zinc-300 border-b-2 border-transparent -mb-px focus:outline-none">Poslednji Odgovor (Response)</button>
+          </div>
+
+          <!-- Terminal Content Box -->
+          <div class="relative flex-grow">
+            <pre class="bg-black/90 p-4 rounded-2xl text-xs font-mono-custom text-emerald-400 overflow-x-auto overflow-y-auto max-h-[250px] border border-zinc-800 min-h-[140px] leading-loose whitespace-pre-wrap break-words"><code id="code-terminal-block">// Pokrenite neku akciju iznad da vidite detalje JSON komunikacije u realnom vremenu...</code></pre>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-zinc-900 bg-black/40 py-6 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <p class="text-xs text-zinc-600">Gemini API Connection Tester &copy; 2026. Siguran lokalni klijent.</p>
+    </div>
+  </footer>
+
+  <!-- Model Details Modal (Glassmorphic Popup Modal) -->
+  <div id="model-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden transition-all duration-300">
+    <div class="bg-zinc-900/95 border border-zinc-800 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-zinc-800/80 flex items-center justify-between bg-zinc-950/60">
+        <div class="flex items-center gap-3">
+          <div id="modal-model-icon" class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
+            <i class="fa-solid fa-cube text-lg animate-pulse"></i>
+          </div>
+          <div>
+            <h3 id="modal-model-title" class="font-bold text-white text-base">Naziv Modela</h3>
+            <code id="modal-model-id" class="text-[10px] text-zinc-500 font-mono-custom">models/gemini-2.5-flash</code>
+          </div>
+        </div>
+        <button id="modal-close" class="text-zinc-400 hover:text-white transition-colors cursor-pointer w-8 h-8 rounded-lg hover:bg-zinc-800/50 flex items-center justify-center">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto max-h-[500px] space-y-6 text-sm">
+        
+        <!-- Technical details grid -->
+        <div class="grid grid-cols-3 gap-4">
+          <div class="p-3 bg-zinc-950/60 border border-zinc-800/50 rounded-2xl flex flex-col">
+            <span class="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">Tip Modela</span>
+            <span id="modal-model-type" class="text-xs text-zinc-200 font-semibold mt-1">Flash</span>
+          </div>
+          <div class="p-3 bg-zinc-950/60 border border-zinc-800/50 rounded-2xl flex flex-col">
+            <span class="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">Ulazni Limiti</span>
+            <span id="modal-model-input-limit" class="text-xs text-zinc-200 font-semibold mt-1">1.04M (1,048,576)</span>
+          </div>
+          <div class="p-3 bg-zinc-950/60 border border-zinc-800/50 rounded-2xl flex flex-col">
+            <span class="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">Izlazni Limiti</span>
+            <span id="modal-model-output-limit" class="text-xs text-zinc-200 font-semibold mt-1">8,192</span>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <h4 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-circle-info text-zinc-500"></i> Opis i Namena Modela
+          </h4>
+          <p id="modal-model-desc" class="text-zinc-300 text-xs leading-relaxed bg-zinc-950/20 p-4 border border-zinc-800/50 rounded-2xl">Opis...</p>
+        </div>
+
+        <!-- Use cases & Features -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-zinc-850 pt-5">
+          <div>
+            <h4 class="text-xs font-semibold text-purple-400 uppercase tracking-wider mb-3.5 flex items-center gap-1.5">
+              <i class="fa-solid fa-list-check text-purple-400"></i> Najčešće Primene (Use Cases)
+            </h4>
+            <ul id="modal-model-usecases" class="space-y-2 text-xs text-zinc-400 list-none pl-0">
+              <!-- usecases will be dynamically loaded here -->
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-3.5 flex items-center gap-1.5">
+              <i class="fa-solid fa-star text-indigo-400"></i> Ključne Karakteristike
+            </h4>
+            <ul id="modal-model-features" class="space-y-2 text-xs text-zinc-400 list-none pl-0">
+              <!-- features will be dynamically loaded here -->
+            </ul>
+          </div>
+        </div>
+
+        <!-- Tabs for Code and Visual Examples -->
+        <div class="border-t border-zinc-800/50 pt-5 mt-5">
+          <div class="flex border-b border-zinc-800 mb-4 text-xs font-medium">
+            <button id="modal-tab-code" class="py-2.5 px-4 text-emerald-400 border-b-2 border-emerald-500 -mb-px focus:outline-none transition-colors">Primer Koda</button>
+            <button id="modal-tab-visual" class="py-2.5 px-4 text-zinc-500 hover:text-zinc-300 border-b-2 border-transparent -mb-px focus:outline-none transition-colors">Praktičan Primer</button>
+          </div>
+
+          <!-- Tab Content: Code -->
+          <div id="modal-content-code">
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-code text-emerald-400"></i> JavaScript SDK
+              </h4>
+              <button id="modal-btn-copy-code" class="text-[10px] py-1 px-2.5 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-500 hover:text-white hover:border-zinc-700 transition-all flex items-center gap-1 cursor-pointer">
+                <i class="fa-regular fa-copy"></i> Kopiraj
+              </button>
+            </div>
+            <pre class="bg-black/90 p-4 rounded-2xl text-xs font-mono-custom text-indigo-300 overflow-x-auto border border-zinc-800/80 leading-relaxed"><code id="modal-model-code">import { GoogleGenAI } from '@google/genai';</code></pre>
+          </div>
+
+          <!-- Tab Content: Visual -->
+          <div id="modal-content-visual" class="hidden flex flex-col space-y-4">
+             <!-- Rendered dynamically by app.js -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- App Main Javascript Logic (cache-bust sa verzijom) -->
+  <script src="app.js?v=2026053021"></script>
+</body>
+</html>
