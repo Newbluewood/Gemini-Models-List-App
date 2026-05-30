@@ -505,10 +505,11 @@ async function fetchModels() {
         <div class="text-center py-10 text-rose-400 border border-rose-900/30 rounded-2xl bg-rose-950/10 flex flex-col items-center justify-center p-4">
           <i class="fa-solid fa-triangle-exclamation text-3xl mb-3"></i>
           <p class="text-sm font-semibold">Greška pri učitavanju modela</p>
-          <p class="text-xs text-zinc-500 mt-1">${data.error || 'Server je vratio neispravan odgovor.'}</p>
+          <p class="text-xs text-zinc-500 mt-1">${typeof data.error === 'object' ? (data.error.message || JSON.stringify(data.error)) : (data.error || 'Server je vratio neispravan odgovor.')}</p>
         </div>
       `;
-      showAlert('danger', 'Greška u preuzimanju modela', data.error || 'Nije moguće učitati modele.');
+      const errMsg = typeof data.error === 'object' ? (data.error.message || JSON.stringify(data.error)) : data.error;
+      showAlert('danger', 'Greška u preuzimanju modela', errMsg || 'Nije moguće učitati modele.');
     }
   } catch (err) {
     showAlert('danger', 'Mrežna greška', err.message);

@@ -91,7 +91,7 @@ app.get('/api/models', async (req, res) => {
 
     if (!response.ok) {
       return res.status(response.status).json({
-        error: data.error || 'Greška pri komunikaciji sa Gemini API.',
+        error: data.error?.message || data.error || 'Greška pri komunikaciji sa Gemini API.',
         status: response.status,
         latency,
         rawResponse: data
@@ -185,8 +185,9 @@ app.post('/api/generate', async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
+      const errMsg = typeof data.error === 'object' ? (data.error.message || JSON.stringify(data.error)) : data.error;
       return res.status(response.status).json({
-        error: data.error || 'Greška pri generisanju sadržaja.',
+        error: errMsg || 'Greška pri generisanju sadržaja.',
         status: response.status,
         latency,
         rawRequest: {
