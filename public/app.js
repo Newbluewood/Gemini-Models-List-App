@@ -89,6 +89,38 @@ async function loadModelSpecs() {
   }
 }
 
+// ─── API Ograničenja Detekcija ──────────────────────────────────────
+// Vraća objekat sa detaljima o ograničenju, ili null ako model radi normalno
+function getApiLimitation(shortName) {
+  if (shortName.startsWith('imagen-')) {
+    return {
+      endpoint: ':predict',
+      sdk: 'Vertex AI SDK',
+      category: 'Generisanje Slika',
+      models: 'Imagen 4.0 Generate / Ultra / Fast (3 modela)',
+      note: 'Zahteva Google Cloud projekat sa aktiviranim billing nalogom. Ne funkcioniše sa standardnim Gemini API ključem iz AI Studija.'
+    };
+  }
+  if (shortName.startsWith('veo-')) {
+    return {
+      endpoint: ':predictLongRunning',
+      sdk: 'Vertex AI SDK',
+      category: 'Generisanje Videa',
+      models: 'Veo 2.0 / 3.0 / 3.1 i sve fast/lite varijante (6 modela)',
+      note: 'Video generisanje je asinhrono — zahtev traje duže i vraća Operation ID koji se prati. Zahteva Google Cloud + billing.'
+    };
+  }
+  if (shortName.startsWith('lyria-')) {
+    return {
+      endpoint: 'WebSocket Stream',
+      sdk: 'Vertex AI SDK (Streaming)',
+      category: 'Generisanje Muzike',
+      models: 'Lyria 3 Clip / Pro (2 modela)',
+      note: 'Muzički modeli koriste WebSocket streaming konekciju, a ne standardni HTTP POST. Zahteva Google Cloud + billing.'
+    };
+  }
+  return null;
+}
 
 // Pomoćna funkcija za čitko formatiranje tokena
 function formatTokenCount(count) {
@@ -576,6 +608,11 @@ function renderModelsList(modelsToRender) {
     card.className = `p-4 rounded-2xl border ${activeBorderClass} transition-all duration-300 cursor-pointer flex flex-col space-y-2 group relative overflow-hidden`;
     card.dataset.modelId = modelId;
     
+    const limitation = getApiLimitation(shortName);
+    const limitationBadge = limitation
+      ? `<span class="mt-1.5 inline-flex items-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[9px] px-1.5 py-0.5 rounded font-bold w-fit"><i class="fa-solid fa-triangle-exclamation"></i> Vertex AI Endpoint</span>`
+      : '';
+
     card.innerHTML = `
       <div class="flex items-start justify-between">
         <div class="flex-grow pr-2">
@@ -584,6 +621,7 @@ function renderModelsList(modelsToRender) {
             ${!modelSpecs[shortName] ? '<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] px-1.5 py-0.5 rounded ml-2 font-bold animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.3)]">NOVO</span>' : ''}
           </h3>
           <code class="text-[10px] text-zinc-500 font-mono-custom break-all block mt-1">${modelId}</code>
+          ${limitationBadge}
         </div>
         <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${badgeClass}">
           ${isFlash ? 'Flash' : isPro ? 'Pro' : 'Model'}
@@ -638,13 +676,55 @@ function selectModel(modelId) {
   } else {
     dom.textareaPrompt.placeholder = "Napišite nešto za Gemini (npr. 'Objasni kvantnu fiziku')...";
   }
+
+  // Proveri da li model ima API ograničenje i prikaži objašnjenje u output oblasti
+  const limitation = getApiLimitation(shortName);
+  if (limitation) {
+    dom.responseBlock.classList.remove('hidden');
+    dom.outputResponse.innerHTML = `
+      <div class="p-4 bg-amber-950/20 border border-amber-700/40 rounded-xl text-sm flex flex-col gap-3">
+        <div class="flex items-center gap-2 text-amber-400 font-bold">
+          <i class="fa-solid fa-triangle-exclamation text-base"></i>
+          <span>Ovaj model nije dostupan putem standardnog Gemini API Testera</span>
+        </div>
+        <p class="text-zinc-300 text-xs leading-relaxed">
+          <strong class="text-amber-300">${limitation.category} → ${limitation.models}</strong> koriste poseban 
+          <code class="bg-zinc-900 px-1 py-0.5 rounded text-amber-300 font-mono">${limitation.endpoint}</code> endpoint 
+          koji je deo <strong class="text-amber-300">${limitation.sdk}</strong>-a, a ne standardnog 
+          <code class="bg-zinc-900 px-1 py-0.5 rounded text-zinc-400 font-mono">:generateContent</code> endpointa koji ovaj tester koristi.
+        </p>
+        <div class="grid grid-cols-2 gap-2 text-[11px]">
+          <div class="bg-zinc-900/60 rounded-lg p-2.5 border border-zinc-800">
+            <span class="text-zinc-500 block mb-1 uppercase tracking-wider font-bold text-[9px]">Potreban Endpoint</span>
+            <code class="text-amber-400 font-mono">${limitation.endpoint}</code>
+          </div>
+          <div class="bg-zinc-900/60 rounded-lg p-2.5 border border-zinc-800">
+            <span class="text-zinc-500 block mb-1 uppercase tracking-wider font-bold text-[9px]">Potreban SDK</span>
+            <code class="text-amber-400 font-mono">${limitation.sdk}</code>
+          </div>
+        </div>
+        <p class="text-zinc-500 text-[11px] leading-relaxed border-t border-zinc-800 pt-3">
+          <i class="fa-solid fa-circle-info mr-1 text-zinc-600"></i>
+          ${limitation.note}
+          Pogledajte <strong class="text-zinc-300">Kod</strong> tab u kartici ovog modela za tačan primer implementacije.
+        </p>
+      </div>
+    `;
+    dom.btnSubmitPrompt.disabled = true;
+  } else {
+    // Sakrij staro objašnjenje ako postoji i model je normalan
+    if (dom.outputResponse.innerHTML.includes('Vertex AI SDK')) {
+      dom.responseBlock.classList.add('hidden');
+      dom.outputResponse.innerHTML = '';
+    }
+  }
   
   // Renderuj ponovo listu da se ažuriraju vizuelni borderi kartica
   const filtered = filterModelsList(dom.searchModels.value);
   renderModelsList(filtered);
   
-  // Omogući slanje prompta ako imamo prompt unet
-  validatePromptSubmission();
+  // Omogući slanje prompta ako imamo prompt unet (samo za modele bez ograničenja)
+  if (!limitation) validatePromptSubmission();
 }
 
 // ─── Filtriranje Modela ─────────────────────────────────────────────
