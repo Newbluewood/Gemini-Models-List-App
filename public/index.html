@@ -86,6 +86,26 @@
     #demo-btn {
       animation: btn-click 3s ease-in-out 1s infinite;
     }
+    /* Custom Scrollbar for Models List */
+    #models-list-container::-webkit-scrollbar {
+      width: 4px;
+    }
+    #models-list-container::-webkit-scrollbar-track {
+      background: transparent;
+      border-radius: 4px;
+    }
+    #models-list-container::-webkit-scrollbar-thumb {
+      background: linear-gradient(to bottom, #6366f1, #a855f7);
+      border-radius: 4px;
+    }
+    #models-list-container::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(to bottom, #4f46e5, #9333ea);
+    }
+    /* Firefox support */
+    #models-list-container {
+      scrollbar-width: thin;
+      scrollbar-color: #a855f7 transparent;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-radial from-zinc-900 via-zinc-950 to-black overflow-x-hidden flex flex-col">
@@ -526,7 +546,7 @@ ADMIN_SECRET=tvoj_password</code>
           </div>
 
           <!-- Models List Box (Scrollable) -->
-          <div id="models-list-container" class="flex-grow overflow-y-auto space-y-3 pr-1 max-h-[360px] min-h-[220px]">
+          <div id="models-list-container" class="flex-grow overflow-y-auto space-y-3 pr-3 max-h-[360px] min-h-[220px]">
             <!-- Skeleton items or fallback info -->
             <div class="text-center py-12 text-zinc-500 border border-dashed border-zinc-800 rounded-2xl bg-zinc-950/20 flex flex-col items-center justify-center">
               <i class="fa-solid fa-layer-group text-3xl mb-3 text-zinc-700"></i>
@@ -841,6 +861,6 @@ ADMIN_SECRET=tvoj_password</code>
   </div>
 
   <!-- App Main Javascript Logic (cache-bust sa verzijom) -->
-  <script src="app.js?v=2026053109"></script>
+  <script src="app.js?v=2026053110"></script>
 </body>
 </html>
