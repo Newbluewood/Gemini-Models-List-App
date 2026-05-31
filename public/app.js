@@ -1179,3 +1179,40 @@ function setupEventListeners() {
 
 // Pokreni aplikaciju
 document.addEventListener('DOMContentLoaded', init);
+
+// ─── Welcome / Onboarding Modal ─────────────────────────────────────
+(function initWelcomeModal() {
+  const modal = document.getElementById('welcome-modal');
+  const closeBtn = document.getElementById('welcome-close-btn');
+  const dontShowChk = document.getElementById('welcome-dont-show');
+  if (!modal || !closeBtn) return;
+
+  // Proveri da li korisnik želi da ga sakrije
+  const hidden = localStorage.getItem('gemini_welcome_hidden') === '1';
+  if (hidden) {
+    modal.style.display = 'none';
+    return;
+  }
+
+  // Zatvori modal
+  function closeModal() {
+    modal.style.opacity = '0';
+    modal.style.transition = 'opacity 0.3s ease';
+    setTimeout(() => { modal.style.display = 'none'; }, 300);
+    if (dontShowChk && dontShowChk.checked) {
+      localStorage.setItem('gemini_welcome_hidden', '1');
+    }
+  }
+
+  closeBtn.addEventListener('click', closeModal);
+
+  // Zatvori klikom van modala
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // Zatvori sa ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.style.display !== 'none') closeModal();
+  });
+})();
