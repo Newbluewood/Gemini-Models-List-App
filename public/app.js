@@ -1,16 +1,6 @@
 // ─── Aplikacija za Testiranje Gemini API ────────────────────────────
 
-// ─── Admin Unlock (URL ?unlock=SECRET → sessionStorage) ─────────────
-(function detectAdminKey() {
-  const params = new URLSearchParams(window.location.search);
-  const unlockKey = params.get('unlock');
-  if (unlockKey) {
-    sessionStorage.setItem('gemini_admin_key', unlockKey);
-    // Očisti URL da se ključ ne vidi
-    window.history.replaceState({}, '', window.location.pathname);
-  }
-})();
-
+// ─── Admin Unlock (iz Session Storage) ─────────────
 function getAdminKey() {
   return sessionStorage.getItem('gemini_admin_key') || '';
 }
@@ -44,6 +34,7 @@ const dom = {
   keyBadge: document.getElementById('key-badge'),
   latencyVal: document.getElementById('latency-val'),
   btnFetchModels: document.getElementById('btn-fetch-models'),
+  btnAdminUnlock: document.getElementById('btn-admin-unlock'),
   
   modelsCount: document.getElementById('models-count'),
   searchModels: document.getElementById('search-models'),
@@ -1190,6 +1181,37 @@ function setupEventListeners() {
 
   // Dugme za preuzimanje modela
   dom.btnFetchModels.addEventListener('click', fetchModels);
+
+  // Admin Unlock Dugme
+  if (dom.btnAdminUnlock) {
+    dom.btnAdminUnlock.addEventListener('click', async () => {
+      const secret = prompt('Unesite Admin Secret za otključavanje neograničenog pristupa:');
+      if (secret) {
+        try {
+          const res = await fetch('/api/verify-admin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key: secret })
+          });
+          const data = await res.json();
+          if (data.valid) {
+            sessionStorage.setItem('gemini_admin_key', secret);
+            alert('✅ ' + data.message);
+            // Refresh limit UI
+            const shortName = state.selectedModel ? state.selectedModel.replace('models/', '') : '';
+            const catInfo = getModelCategory(shortName);
+            if (catInfo && catInfo.category) {
+              checkAndShowRateLimit(catInfo.category);
+            }
+          } else {
+            alert('❌ ' + data.message);
+          }
+        } catch (e) {
+          alert('Došlo je do greške pri proveri ključa.');
+        }
+      }
+    });
+  }
   
   // Pretraga modela u realnom vremenu
   dom.searchModels.addEventListener('input', (e) => {

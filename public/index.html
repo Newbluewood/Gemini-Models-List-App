@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gemini API & Model Connection Tester</title>
+  <title>Gemini AI Models Tester</title>
   
   <!-- Tailwind CSS v4 CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -397,9 +397,9 @@ ADMIN_SECRET=tvoj_password</code>
             <div class="flex items-start gap-3">
               <span class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">5</span>
               <div class="text-xs text-zinc-400 leading-relaxed">
-                <strong class="text-zinc-200">Otključaj</strong> — dodaj <code class="text-emerald-400">?unlock=tvoj_password</code> na kraj URL-a:
-                <code class="block mt-1 p-2 bg-zinc-900 rounded-lg text-emerald-300 font-mono text-[11px] border border-zinc-800">http://localhost:3000?unlock=tvoj_password</code>
-                <span class="text-zinc-500 text-[10px] mt-1 block"><i class="fa-solid fa-circle-info mr-1"></i>Password = ADMIN_SECRET iz .env fajla. URL se automatski očisti.</span>
+                <strong class="text-zinc-200">Otključaj</strong> — u glavnom interfejsu, klikni na <strong class="text-emerald-400">Unlock Limit</strong> dugme 
+                pored API konfiguracije i upiši svoj password.
+                <span class="text-zinc-500 text-[10px] mt-1 block"><i class="fa-solid fa-circle-info mr-1"></i>Password = ADMIN_SECRET iz .env fajla. Status će se promeniti u ∞.</span>
               </div>
             </div>
           </div>
@@ -432,7 +432,7 @@ ADMIN_SECRET=tvoj_password</code>
         </div>
         <div>
           <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-zinc-100 to-zinc-400 bg-clip-text text-transparent flex items-center gap-2">
-            Gemini <span class="text-indigo-400 font-medium">Connection Tester</span>
+            Gemini <span class="text-indigo-400 font-medium">AI Models Tester</span>
           </h1>
           <p class="text-xs text-zinc-500">Razvojni alat za verifikaciju i testiranje Gemini modela</p>
         </div>
@@ -469,10 +469,13 @@ ADMIN_SECRET=tvoj_password</code>
         <section class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800 rounded-3xl p-6 shadow-xl relative overflow-hidden group">
           <div class="absolute -right-16 -top-16 w-36 h-36 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-all duration-500"></div>
           
-          <h2 class="text-lg font-semibold tracking-tight text-white mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-key text-indigo-400 text-sm"></i>
-            API Konfiguracija i Status
-          </h2>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold tracking-tight text-white flex items-center gap-2">
+              <i class="fa-solid fa-key text-indigo-400 text-sm"></i>
+              API Konfiguracija i Status
+            </h2>
+            <button id="btn-admin-unlock" class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-lg hover:bg-emerald-500/20 transition-all flex items-center gap-1.5 active-glow font-medium"><i class="fa-solid fa-lock-open"></i> Unlock Limit</button>
+          </div>
           
           <div class="space-y-4">
             <!-- Key Configuration Block -->
@@ -838,6 +841,6 @@ ADMIN_SECRET=tvoj_password</code>
   </div>
 
   <!-- App Main Javascript Logic (cache-bust sa verzijom) -->
-  <script src="app.js?v=2026053107"></script>
+  <script src="app.js?v=2026053108"></script>
 </body>
 </html>
