@@ -761,14 +761,20 @@ function parseGeminiResponse(json) {
         const mime = part.inlineData.mimeType;
         const b64 = part.inlineData.data;
         
+        let ext = mime.split('/')[1] || 'bin';
+        if (mime.includes('jpeg')) ext = 'jpg';
+        if (mime.includes('mpeg')) ext = 'mp3';
+        
+        const downloadBtn = `<a href="data:${mime};base64,${b64}" download="gemini_generated.${ext}" class="inline-flex items-center gap-2 mt-2 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-xs text-zinc-300 transition-colors cursor-pointer w-fit"><i class="fa-solid fa-download"></i> Sačuvaj Fajl</a>`;
+
         if (mime.startsWith('image/')) {
-          htmlResult += `<div class="mt-4 mb-2"><img src="data:${mime};base64,${b64}" class="max-w-full h-auto rounded-xl border border-zinc-700 shadow-lg"></div>`;
+          htmlResult += `<div class="mt-4 mb-2 flex flex-col"><img src="data:${mime};base64,${b64}" class="max-w-full h-auto rounded-xl border border-zinc-700 shadow-lg">${downloadBtn}</div>`;
         } else if (mime.startsWith('audio/')) {
-          htmlResult += `<div class="mt-4 mb-2 p-3 bg-zinc-900 rounded-lg border border-zinc-700"><span class="text-[10px] text-zinc-400 block mb-2 uppercase font-bold tracking-wider"><i class="fa-solid fa-music mr-1"></i> Generisani Audio</span><audio controls class="w-full"><source src="data:${mime};base64,${b64}" type="${mime}"></audio></div>`;
+          htmlResult += `<div class="mt-4 mb-2 p-3 bg-zinc-900 rounded-lg border border-zinc-700 flex flex-col"><span class="text-[10px] text-zinc-400 block mb-2 uppercase font-bold tracking-wider"><i class="fa-solid fa-music mr-1"></i> Generisani Audio</span><audio controls class="w-full"><source src="data:${mime};base64,${b64}" type="${mime}"></audio>${downloadBtn}</div>`;
         } else if (mime.startsWith('video/')) {
-          htmlResult += `<div class="mt-4 mb-2"><video controls class="max-w-full h-auto rounded-xl border border-zinc-700 shadow-lg"><source src="data:${mime};base64,${b64}" type="${mime}"></video></div>`;
+          htmlResult += `<div class="mt-4 mb-2 flex flex-col"><video controls class="max-w-full h-auto rounded-xl border border-zinc-700 shadow-lg"><source src="data:${mime};base64,${b64}" type="${mime}"></video>${downloadBtn}</div>`;
         } else {
-          htmlResult += `<div class="mt-4 mb-2 p-3 bg-zinc-900 rounded-lg border border-zinc-700 text-xs text-zinc-400"><i class="fa-solid fa-file mr-1"></i> Generisan fajl tipa: ${mime} (Nije podržan direktan prikaz)</div>`;
+          htmlResult += `<div class="mt-4 mb-2 p-3 bg-zinc-900 rounded-lg border border-zinc-700 flex flex-col items-start gap-2"><span class="text-xs text-zinc-400"><i class="fa-solid fa-file mr-1"></i> Generisan fajl tipa: ${mime}</span>${downloadBtn}</div>`;
         }
       }
     });
