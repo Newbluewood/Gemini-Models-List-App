@@ -113,14 +113,14 @@ db.transaction(() => {
     else if (key.includes('lyria')) {
       example_type = 'audio';
       example_data = {
-        prompt: "Komponuj opuštajuću ambijentalnu melodiju sa drvenim flautama i akustičnim instrumentima koja bi savršeno odgovarala uz misterioznu šumsku scenu.",
-        mediaUrl: "examples/audio-sample.mp3"
+        prompt: "Kreiraj 30-sekundni lo-fi hip hop beat sa sintisajzerima koji bi savršeno odgovarao uz sliku futurističkog robota u neonskoj šumi.",
+        mediaUrl: "examples/audio_generated_by_lyria.m4a"
       };
     }
     else if (key.includes('veo')) {
       example_type = 'video';
       example_data = {
-        prompt: "Koristeći sliku robota kao početni frejm i ambijentalnu melodiju sa flautama kao muziku, animiraj scenu: robot polako podiže glavu, a neonske lampice na drveću lagano svetlucaju.",
+        prompt: "Koristeći sliku robota kao početni frejm i lo-fi beat kao muziku, animiraj scenu: robot polako podiže glavu, a neonske lampice na drveću pulsiraju u ritmu muzike.",
         inputMediaUrl: "examples/image-sample.png",
         mediaUrl: "examples/video_generated_by_veo31.mp4"
       };
@@ -140,7 +140,7 @@ db.transaction(() => {
       example_data = {
         prompt: "Pogledaj 'video_generated_by_veo31.mp4' i ukratko opiši šta se dešava u sceni (Video-to-Text Analysis).",
         inputMediaUrl: "examples/video_generated_by_veo31.mp4",
-        response: "Na video snimku se vidi detaljan kadar futurističkog robota koji polako podiže glavu dok stoji u mračnoj šumi. Šuma je osvetljena snažnim neonskim svetlima dok se u pozadini čuje opuštajuća melodija flaute. Video je generisan pomoću Veo 3.1 Fast modela."
+        response: "Na video snimku se vidi detaljan kadar futurističkog robota koji polako podiže glavu dok stoji u mračnoj šumi. Šuma je osvetljena snažnim neonskim svetlima koja pulsiraju u ritmu lo-fi hip-hop muzike koja svira u pozadini. Video je generisan pomoću Veo 3.1 Fast modela."
       };
     }
     
