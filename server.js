@@ -117,6 +117,83 @@ app.get('/api/models', async (req, res) => {
   }
 });
 
+// ─── Rate Limiter za Premium modele (Imagen, Veo, Lyria) ────────────
+const PREMIUM_CATEGORIES = ['imagen', 'veo', 'lyria'];
+const RATE_LIMIT_MAX = 2;          // maks. poziva po kategoriji
+const RATE_LIMIT_WINDOW = 2 * 60 * 60 * 1000; // 2 sata u ms
+
+// In-memory store: { "IP": { imagen: { count: 2, firstUse: timestamp }, veo: {...} } }
+const rateLimitStore = {};
+
+function getRateLimitKey(req) {
+  return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || req.connection?.remoteAddress || 'unknown';
+}
+
+function checkRateLimit(ip, category) {
+  if (!PREMIUM_CATEGORIES.includes(category)) return { allowed: true };
+
+  if (!rateLimitStore[ip]) rateLimitStore[ip] = {};
+  if (!rateLimitStore[ip][category]) rateLimitStore[ip][category] = { count: 0, firstUse: Date.now() };
+
+  const entry = rateLimitStore[ip][category];
+  const elapsed = Date.now() - entry.firstUse;
+
+  // Prozor istekao — resetuj
+  if (elapsed >= RATE_LIMIT_WINDOW) {
+    entry.count = 0;
+    entry.firstUse = Date.now();
+  }
+
+  if (entry.count >= RATE_LIMIT_MAX) {
+    const remainingMs = RATE_LIMIT_WINDOW - elapsed;
+    const mins = Math.ceil(remainingMs / 60000);
+    return {
+      allowed: false,
+      remaining: 0,
+      resetInMinutes: mins,
+      message: `Dostigli ste limit od ${RATE_LIMIT_MAX} poziva za ${category.toUpperCase()} modele. Pristup se resetuje za ${mins} minuta.`
+    };
+  }
+
+  return { allowed: true, remaining: RATE_LIMIT_MAX - entry.count };
+}
+
+function recordUsage(ip, category) {
+  if (!PREMIUM_CATEGORIES.includes(category)) return;
+  if (!rateLimitStore[ip]) rateLimitStore[ip] = {};
+  if (!rateLimitStore[ip][category]) rateLimitStore[ip][category] = { count: 0, firstUse: Date.now() };
+  rateLimitStore[ip][category].count++;
+}
+
+// Čišćenje isteklih zapisa svakih 30 min
+setInterval(() => {
+  const now = Date.now();
+  for (const ip of Object.keys(rateLimitStore)) {
+    for (const cat of Object.keys(rateLimitStore[ip])) {
+      if (now - rateLimitStore[ip][cat].firstUse >= RATE_LIMIT_WINDOW) {
+        delete rateLimitStore[ip][cat];
+      }
+    }
+    if (Object.keys(rateLimitStore[ip]).length === 0) delete rateLimitStore[ip];
+  }
+}, 30 * 60 * 1000);
+
+// API ruta: status preostalih poziva za korisnika
+app.get('/api/rate-status', (req, res) => {
+  const ip = getRateLimitKey(req);
+  const status = {};
+  for (const cat of PREMIUM_CATEGORIES) {
+    const check = checkRateLimit(ip, cat);
+    if (check.allowed) {
+      const entry = rateLimitStore[ip]?.[cat];
+      status[cat] = { remaining: entry ? RATE_LIMIT_MAX - entry.count : RATE_LIMIT_MAX, limit: RATE_LIMIT_MAX, locked: false };
+    } else {
+      status[cat] = { remaining: 0, limit: RATE_LIMIT_MAX, locked: true, resetInMinutes: check.resetInMinutes };
+    }
+  }
+  res.json(status);
+});
+
 // ─── Pomoćna: Određuje tip modela i vraća endpoint + body builder ───
 function getModelRouter(shortName) {
   if (shortName.startsWith('imagen-')) {
@@ -161,6 +238,18 @@ app.post('/api/generate', async (req, res) => {
   const formattedModel = model.startsWith('models/') ? model : `models/${model}`;
   const shortName = formattedModel.replace('models/', '');
   const { method, category } = getModelRouter(shortName);
+
+  // ─── Rate Limit provera za premium modele ───
+  const userIp = getRateLimitKey(req);
+  const rateCheck = checkRateLimit(userIp, category);
+  if (!rateCheck.allowed) {
+    return res.status(429).json({
+      error: rateCheck.message,
+      rateLimited: true,
+      category,
+      resetInMinutes: rateCheck.resetInMinutes
+    });
+  }
 
   const BASE = 'https://generativelanguage.googleapis.com/v1beta';
   const url = `${BASE}/${formattedModel}:${method}?key=${apiKey}`;
@@ -271,6 +360,9 @@ app.post('/api/generate', async (req, res) => {
     }
 
     // Za Veo: odmah vraćamo operation objekat klijentu — on sam polla
+    // Zabeleži upotrebu za premium modele (samo posle uspešnog poziva)
+    recordUsage(userIp, category);
+
     res.json({
       success: true,
       category,

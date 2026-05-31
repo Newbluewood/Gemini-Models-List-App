@@ -723,14 +723,67 @@ function selectModel(modelId) {
   }
 
   // Ukloni staru poruku o ograničenjima ako postoji
-  if (dom.outputResponse.innerHTML.includes('Vertex AI SDK')) {
+  if (dom.outputResponse.innerHTML.includes('Vertex AI SDK') || dom.outputResponse.innerHTML.includes('rate-limit-notice')) {
     dom.responseBlock.classList.add('hidden');
     dom.outputResponse.innerHTML = '';
   }
+
+  // Proveri rate limit za premium modele
+  checkAndShowRateLimit(category);
   
   const filtered = filterModelsList(dom.searchModels.value);
   renderModelsList(filtered);
   validatePromptSubmission();
+}
+
+// Asinhrona provera rate limit statusa sa servera
+async function checkAndShowRateLimit(category) {
+  const premiumCategories = ['imagen', 'veo', 'lyria'];
+  
+  // Ukloni stari rate limit badge ako postoji
+  const oldBadge = document.getElementById('rate-limit-badge');
+  if (oldBadge) oldBadge.remove();
+
+  if (!premiumCategories.includes(category)) return;
+
+  try {
+    const res = await fetch('/api/rate-status');
+    const status = await res.json();
+    const catStatus = status[category];
+    if (!catStatus) return;
+
+    const badgeHtml = document.createElement('div');
+    badgeHtml.id = 'rate-limit-badge';
+
+    if (catStatus.locked) {
+      // Zaključan — prikaži u output oblasti i disabluj dugme
+      badgeHtml.className = 'mt-2 p-3 bg-rose-950/30 border border-rose-800/40 rounded-xl flex items-center gap-3';
+      badgeHtml.innerHTML = `
+        <i class="fa-solid fa-lock text-rose-400"></i>
+        <div class="flex-1">
+          <p class="text-rose-400 text-xs font-semibold">Limit dostignut za ${category.toUpperCase()} modele</p>
+          <p class="text-zinc-500 text-[11px]">Iskoristili ste ${catStatus.limit}/${catStatus.limit} besplatna poziva. Pristup se resetuje za <strong class="text-zinc-300">${catStatus.resetInMinutes} min</strong>.</p>
+        </div>`;
+      dom.responseBlock.classList.remove('hidden');
+      dom.outputResponse.innerHTML = '';
+      dom.outputResponse.appendChild(badgeHtml);
+      dom.btnSubmitPrompt.disabled = true;
+    } else {
+      // Ima preostalih — mali badge pored dugmeta
+      badgeHtml.className = 'mt-2 text-center';
+      const remaining = catStatus.remaining;
+      const color = remaining === 1 ? 'amber' : 'emerald';
+      badgeHtml.innerHTML = `
+        <span class="text-[11px] text-${color}-400 bg-${color}-950/30 border border-${color}-800/30 px-2.5 py-1 rounded-lg inline-flex items-center gap-1.5">
+          <i class="fa-solid fa-${remaining === 1 ? 'exclamation-triangle' : 'circle-check'} text-[9px]"></i>
+          ${category.toUpperCase()}: preostalo ${remaining}/${catStatus.limit} besplatnih poziva
+        </span>`;
+      dom.btnSubmitPrompt.parentElement.appendChild(badgeHtml);
+    }
+  } catch (e) {
+    // Ako ne možemo da proverimo, dozvoli pristup
+    console.warn('Rate limit status check failed:', e);
+  }
 }
 
 // Helper — kategorija modela (koristi se i u selectModel i u submitPrompt)
@@ -816,6 +869,20 @@ async function submitPrompt() {
     
     // Ažuriraj JSON terminal
     updateJSONConsole(data.rawRequest || requestBody, data.rawResponse || data);
+
+    // Rate limit 429 — poseban prikaz
+    if (res.status === 429 && data.rateLimited) {
+      dom.outputResponse.innerHTML = `
+        <div class="p-4 bg-rose-950/20 border border-rose-800/40 rounded-xl flex items-center gap-3">
+          <i class="fa-solid fa-lock text-rose-400 text-xl"></i>
+          <div>
+            <p class="text-rose-400 text-sm font-semibold">Limit dostignut za ${(data.category || '').toUpperCase()} modele</p>
+            <p class="text-zinc-400 text-xs mt-1">${data.error}</p>
+          </div>
+        </div>`;
+      dom.btnSubmitPrompt.disabled = true;
+      return;
+    }
     
     if (res.ok && data.success) {
       dom.latencyVal.textContent = `${data.latency} ms`;
@@ -827,6 +894,11 @@ async function submitPrompt() {
       } else {
         dom.outputResponse.innerHTML = `<span class="text-zinc-500 italic">API je vratio uspešan status, ali bez vizuelnog ili tekstualnog sadržaja. Proverite JSON odgovor.</span>`;
       }
+
+      // Ažuriraj rate limit badge posle uspešnog premium poziva
+      const shortName = state.selectedModel ? state.selectedModel.replace('models/', '') : '';
+      const { category: cat } = getModelCategory(shortName);
+      checkAndShowRateLimit(cat);
     } else {
       dom.outputResponse.innerHTML = `
         <div class="p-3 bg-rose-950/20 border border-rose-900/30 rounded-xl text-rose-400 text-xs flex items-start gap-2">
