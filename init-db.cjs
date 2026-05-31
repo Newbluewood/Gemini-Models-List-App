@@ -119,6 +119,7 @@ db.transaction(() => {
       example_type = 'video';
       example_data = {
         prompt: "Koristeći sliku robota kao početni frejm i lo-fi beat kao muziku, animiraj scenu: robot polako podiže glavu, a neonske lampice na drveću pulsiraju u ritmu muzike.",
+        inputMediaUrl: "examples/image-sample.png",
         mediaUrl: "examples/video_generated_by_veo31.mp4"
       };
     }
