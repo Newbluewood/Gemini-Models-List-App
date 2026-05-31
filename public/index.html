@@ -185,9 +185,8 @@
               </select>
             </div>
 
-            <!-- Configuration Parameters -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 p-4 rounded-2xl bg-zinc-950/40 border border-zinc-800/80">
-              <!-- Temperature slider -->
+            <!-- Dynamic Config Panel — menja se po tipu modela -->
+            <div id="config-panel-standard" class="grid grid-cols-1 md:grid-cols-2 gap-5 p-4 rounded-2xl bg-zinc-950/40 border border-zinc-800/80">
               <div>
                 <div class="flex items-center justify-between mb-1.5">
                   <span class="text-xs font-medium text-zinc-400">Temperatura (Kreativnost)</span>
@@ -195,8 +194,6 @@
                 </div>
                 <input id="range-temp" type="range" min="0" max="2" step="0.1" value="1.0" class="w-full accent-indigo-500 bg-zinc-800 rounded-lg cursor-pointer h-1.5">
               </div>
-
-              <!-- Max Output Tokens input -->
               <div>
                 <div class="flex items-center justify-between mb-1.5">
                   <span class="text-xs font-medium text-zinc-400">Maksimalno Tokena (Dužina)</span>
@@ -206,11 +203,80 @@
               </div>
             </div>
 
+            <!-- Imagen konfig panel -->
+            <div id="config-panel-imagen" class="hidden grid grid-cols-1 md:grid-cols-2 gap-5 p-4 rounded-2xl bg-zinc-950/40 border border-amber-800/30">
+              <div>
+                <label class="text-xs font-medium text-zinc-400 block mb-1.5">Aspect Ratio Slike</label>
+                <select id="select-aspect-ratio-imagen" class="w-full py-2 px-3 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-200 text-xs focus:outline-none focus:border-amber-500 cursor-pointer">
+                  <option value="1:1">1:1 (Kvadrat)</option>
+                  <option value="16:9" selected>16:9 (Landscape)</option>
+                  <option value="9:16">9:16 (Portrait)</option>
+                  <option value="4:3">4:3 (Klasični)</option>
+                  <option value="3:4">3:4 (Portrait klasični)</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs font-medium text-zinc-400 block mb-1.5">Broj Slika (1–4)</label>
+                <input id="input-num-images" type="number" min="1" max="4" value="1" class="w-full py-2 px-3 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-200 text-xs focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+              </div>
+            </div>
+
+            <!-- Veo konfig panel -->
+            <div id="config-panel-veo" class="hidden grid grid-cols-1 md:grid-cols-2 gap-5 p-4 rounded-2xl bg-zinc-950/40 border border-purple-800/30">
+              <div>
+                <label class="text-xs font-medium text-zinc-400 block mb-1.5">Aspect Ratio Videa</label>
+                <select id="select-aspect-ratio-veo" class="w-full py-2 px-3 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-200 text-xs focus:outline-none focus:border-purple-500 cursor-pointer">
+                  <option value="16:9" selected>16:9 (Landscape — Preporučeno)</option>
+                  <option value="9:16">9:16 (Portrait / Reels)</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs font-medium text-zinc-400 block mb-1.5">Trajanje Videa</label>
+                <select id="select-video-duration" class="w-full py-2 px-3 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-200 text-xs focus:outline-none focus:border-purple-500 cursor-pointer">
+                  <option value="">Automatski</option>
+                  <option value="5">5 sekundi</option>
+                  <option value="8">8 sekundi</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- TTS / Lyria konfig panel -->
+            <div id="config-panel-tts" class="hidden grid grid-cols-1 md:grid-cols-2 gap-5 p-4 rounded-2xl bg-zinc-950/40 border border-emerald-800/30">
+              <div>
+                <label class="text-xs font-medium text-zinc-400 block mb-1.5">Glas (Voice)</label>
+                <select id="select-voice-name" class="w-full py-2 px-3 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-200 text-xs focus:outline-none focus:border-emerald-500 cursor-pointer">
+                  <option value="Kore">Kore (Ženski, neutralan)</option>
+                  <option value="Aoede">Aoede (Ženski, topao)</option>
+                  <option value="Puck">Puck (Muški, mlad)</option>
+                  <option value="Charon">Charon (Muški, dubok)</option>
+                  <option value="Fenrir">Fenrir (Muški, snažan)</option>
+                  <option value="Leda">Leda (Ženski, jasan)</option>
+                </select>
+              </div>
+              <div class="flex items-center">
+                <div class="p-2.5 bg-emerald-950/30 border border-emerald-800/30 rounded-lg text-[11px] text-emerald-400 leading-relaxed">
+                  <i class="fa-solid fa-circle-info mr-1"></i>
+                  Model generiše audio fajl koji možete odmah čuti i preuzeti.
+                </div>
+              </div>
+            </div>
+
+            <!-- Embedding konfig panel -->
+            <div id="config-panel-embedding" class="hidden p-4 rounded-2xl bg-zinc-950/40 border border-indigo-800/30">
+              <div class="text-[11px] text-indigo-300 leading-relaxed flex items-start gap-2">
+                <i class="fa-solid fa-vector-square mt-0.5 text-indigo-400 flex-shrink-0"></i>
+                <span>Embedding modeli ne primaju konfiguracione parametre. Vaš tekst će biti konvertovan u <strong>numerički vektor</strong> visoke dimenzionalnosti koji možete koristiti za semantičku pretragu ili clustering.</span>
+              </div>
+            </div>
+
             <!-- Prompt Text -->
             <div id="dropzone-container" class="relative group">
               <div class="flex items-center justify-between mb-2">
                 <label for="textarea-prompt" class="block text-xs text-zinc-500 font-semibold uppercase tracking-wider">Poruka / Prompt</label>
-                <span class="text-[10px] text-zinc-600 bg-zinc-900/50 px-2 py-0.5 rounded border border-zinc-800"><i class="fa-solid fa-file-import mr-1"></i>Prevuci fajl ovde</span>
+                <span class="text-[10px] text-zinc-600 bg-zinc-900/50 px-2 py-0.5 rounded border border-zinc-800">
+                  <i class="fa-solid fa-file-import mr-1"></i>Prevuci fajl ovde
+                  <span id="supported-types-hint" class="ml-1 text-zinc-700">· slika, audio, video, PDF</span>
+                </span>
               </div>
               <textarea id="textarea-prompt" rows="4" placeholder='Napišite nešto za Gemini... npr: "Analiziraj sliku u prilogu i ukloni robota !"' class="w-full py-3.5 px-4 rounded-2xl bg-zinc-950 border border-zinc-800 text-zinc-200 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 placeholder-zinc-600 transition-all duration-300 resize-none"></textarea>
               
@@ -218,6 +284,7 @@
               <div id="drag-overlay" class="absolute inset-0 top-6 bg-indigo-500/20 backdrop-blur-sm border-2 border-dashed border-indigo-400 rounded-2xl flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity z-10 hidden">
                 <i class="fa-solid fa-cloud-arrow-up text-3xl text-indigo-400 mb-2"></i>
                 <span class="text-sm font-bold text-indigo-300">Spusti fajl ovde</span>
+                <span class="text-xs text-indigo-400/70 mt-1">Slika · Audio · Video · PDF · Tekst</span>
               </div>
             </div>
 
@@ -241,6 +308,7 @@
               <i class="fa-solid fa-bolt text-xs"></i>
               Pošalji Zahtev Modelu
             </button>
+
           </div>
 
           <!-- RESPONSE BLOCK -->

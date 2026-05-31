@@ -72,7 +72,19 @@ const dom = {
   modalTabCode: document.getElementById('modal-tab-code'),
   modalTabVisual: document.getElementById('modal-tab-visual'),
   modalContentCode: document.getElementById('modal-content-code'),
-  modalContentVisual: document.getElementById('modal-content-visual')
+  modalContentVisual: document.getElementById('modal-content-visual'),
+
+  // Dinamički konfig paneli
+  configPanelStandard: document.getElementById('config-panel-standard'),
+  configPanelImagen: document.getElementById('config-panel-imagen'),
+  configPanelVeo: document.getElementById('config-panel-veo'),
+  configPanelTts: document.getElementById('config-panel-tts'),
+  configPanelEmbedding: document.getElementById('config-panel-embedding'),
+  selectAspectRatioImagen: document.getElementById('select-aspect-ratio-imagen'),
+  selectAspectRatioVeo: document.getElementById('select-aspect-ratio-veo'),
+  selectVideoDuration: document.getElementById('select-video-duration'),
+  selectVoiceName: document.getElementById('select-voice-name'),
+  inputNumImages: document.getElementById('input-num-images')
 };
 
 // Baza detaljnih specifikacija za popularne Google Gemini modele
@@ -120,6 +132,30 @@ function getApiLimitation(shortName) {
     };
   }
   return null;
+}
+
+// ─── Dinamički Config Panel preklopčač ─────────────────────────────
+function switchConfigPanel(category) {
+  const panels = [
+    dom.configPanelStandard,
+    dom.configPanelImagen,
+    dom.configPanelVeo,
+    dom.configPanelTts,
+    dom.configPanelEmbedding
+  ];
+  panels.forEach(p => p && p.classList.add('hidden'));
+
+  const map = {
+    standard: dom.configPanelStandard,
+    imagen: dom.configPanelImagen,
+    veo: dom.configPanelVeo,
+    lyria: dom.configPanelTts,
+    tts: dom.configPanelTts,
+    embedding: dom.configPanelEmbedding,
+    aqa: dom.configPanelStandard
+  };
+  const target = map[category] || dom.configPanelStandard;
+  target && target.classList.remove('hidden');
 }
 
 // Pomoćna funkcija za čitko formatiranje tokena
@@ -661,70 +697,51 @@ function renderModelsList(modelsToRender) {
 function selectModel(modelId) {
   state.selectedModel = modelId;
   
-  // Ažuriraj selektovan badge u interfejsu
   const shortName = modelId.replace('models/', '');
   dom.selectedModelBadge.textContent = shortName;
   dom.selectedModelBadge.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 active-glow';
-  
-  // Ažuriraj padajući meni
   dom.selectActiveModel.value = modelId;
   
-  // Dinamičko ažuriranje placeholder-a na osnovu tipa modela i naših novih primera iz baze
+  // Odredi kategoriju modela i preklopi konfig panel
+  const { category } = getModelCategory(shortName);
+  switchConfigPanel(category);
+
+  // Placeholder po tipu modela
   const spec = modelSpecs[shortName];
   if (spec && spec.example_data && spec.example_data.prompt) {
     dom.textareaPrompt.placeholder = `Probajte: "${spec.example_data.prompt}"`;
+  } else if (category === 'imagen') {
+    dom.textareaPrompt.placeholder = 'Opišite sliku koju želite da generišete...';
+  } else if (category === 'veo') {
+    dom.textareaPrompt.placeholder = 'Opišite video scenu koju želite da generišete...';
+  } else if (category === 'embedding') {
+    dom.textareaPrompt.placeholder = 'Unesite tekst koji želite da konvertujete u vektor...';
+  } else if (category === 'tts' || category === 'lyria') {
+    dom.textareaPrompt.placeholder = 'Unesite tekst koji želite da pretvorite u govor...';
   } else {
     dom.textareaPrompt.placeholder = "Napišite nešto za Gemini (npr. 'Objasni kvantnu fiziku')...";
   }
 
-  // Proveri da li model ima API ograničenje i prikaži objašnjenje u output oblasti
-  const limitation = getApiLimitation(shortName);
-  if (limitation) {
-    dom.responseBlock.classList.remove('hidden');
-    dom.outputResponse.innerHTML = `
-      <div class="p-4 bg-amber-950/20 border border-amber-700/40 rounded-xl text-sm flex flex-col gap-3">
-        <div class="flex items-center gap-2 text-amber-400 font-bold">
-          <i class="fa-solid fa-triangle-exclamation text-base"></i>
-          <span>Ovaj model nije dostupan putem standardnog Gemini API Testera</span>
-        </div>
-        <p class="text-zinc-300 text-xs leading-relaxed">
-          <strong class="text-amber-300">${limitation.category} → ${limitation.models}</strong> koriste poseban 
-          <code class="bg-zinc-900 px-1 py-0.5 rounded text-amber-300 font-mono">${limitation.endpoint}</code> endpoint 
-          koji je deo <strong class="text-amber-300">${limitation.sdk}</strong>-a, a ne standardnog 
-          <code class="bg-zinc-900 px-1 py-0.5 rounded text-zinc-400 font-mono">:generateContent</code> endpointa koji ovaj tester koristi.
-        </p>
-        <div class="grid grid-cols-2 gap-2 text-[11px]">
-          <div class="bg-zinc-900/60 rounded-lg p-2.5 border border-zinc-800">
-            <span class="text-zinc-500 block mb-1 uppercase tracking-wider font-bold text-[9px]">Potreban Endpoint</span>
-            <code class="text-amber-400 font-mono">${limitation.endpoint}</code>
-          </div>
-          <div class="bg-zinc-900/60 rounded-lg p-2.5 border border-zinc-800">
-            <span class="text-zinc-500 block mb-1 uppercase tracking-wider font-bold text-[9px]">Potreban SDK</span>
-            <code class="text-amber-400 font-mono">${limitation.sdk}</code>
-          </div>
-        </div>
-        <p class="text-zinc-500 text-[11px] leading-relaxed border-t border-zinc-800 pt-3">
-          <i class="fa-solid fa-circle-info mr-1 text-zinc-600"></i>
-          ${limitation.note}
-          Pogledajte <strong class="text-zinc-300">Kod</strong> tab u kartici ovog modela za tačan primer implementacije.
-        </p>
-      </div>
-    `;
-    dom.btnSubmitPrompt.disabled = true;
-  } else {
-    // Sakrij staro objašnjenje ako postoji i model je normalan
-    if (dom.outputResponse.innerHTML.includes('Vertex AI SDK')) {
-      dom.responseBlock.classList.add('hidden');
-      dom.outputResponse.innerHTML = '';
-    }
+  // Ukloni staru poruku o ograničenjima ako postoji
+  if (dom.outputResponse.innerHTML.includes('Vertex AI SDK')) {
+    dom.responseBlock.classList.add('hidden');
+    dom.outputResponse.innerHTML = '';
   }
   
-  // Renderuj ponovo listu da se ažuriraju vizuelni borderi kartica
   const filtered = filterModelsList(dom.searchModels.value);
   renderModelsList(filtered);
-  
-  // Omogući slanje prompta ako imamo prompt unet (samo za modele bez ograničenja)
-  if (!limitation) validatePromptSubmission();
+  validatePromptSubmission();
+}
+
+// Helper — kategorija modela (koristi se i u selectModel i u submitPrompt)
+function getModelCategory(shortName) {
+  if (shortName.startsWith('imagen-')) return { category: 'imagen' };
+  if (shortName.startsWith('veo-')) return { category: 'veo' };
+  if (shortName.startsWith('lyria-')) return { category: 'lyria' };
+  if (shortName.includes('embedding')) return { category: 'embedding' };
+  if (shortName === 'aqa') return { category: 'aqa' };
+  if (shortName.includes('-tts-') || shortName.endsWith('-tts')) return { category: 'tts' };
+  return { category: 'standard' };
 }
 
 // ─── Filtriranje Modela ─────────────────────────────────────────────
@@ -733,20 +750,22 @@ function filterModelsList(query) {
   const q = query.toLowerCase();
   return state.models.filter(m => 
     (m.displayName && m.displayName.toLowerCase().includes(q)) || 
-    m.name.toLowerCase().includes(q) ||
+m.name.toLowerCase().includes(q) ||
     (m.description && m.description.toLowerCase().includes(q))
   );
 }
 
-// ─── Slanje Promptova i Generisanje Odgovora ───────────────────────
+// ─── Slanje Promptova i Generisanje Odgovora ─────────────────────────
 async function submitPrompt() {
   const prompt = dom.textareaPrompt.value.trim();
   const model = state.selectedModel;
-  
-  if (!prompt || !model) return;
-  
+  const shortName = model ? model.replace('models/', '') : '';
+  const { category } = getModelCategory(shortName);
+
+  if (!prompt && !state.droppedFile && category !== 'imagen' && category !== 'veo') return;
+  if (!model) return;
+
   try {
-    // UI Loading state
     dom.btnSubmitPrompt.disabled = true;
     dom.btnSubmitPrompt.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-2"></i> Generišem odgovor sa Gemini...';
     
@@ -828,25 +847,51 @@ async function submitPrompt() {
 }
 
 // Parsiranje odgovora iz standardnog Gemini API JSON payload-a
-function parseGeminiResponse(json) {
+function parseGeminiResponse(json, category) {
+  if (!json) return null;
   try {
-    const parts = json.candidates[0].content.parts;
+    // ── Imagen: predictions[] format ───────────────────────────────
+    if (category === 'imagen' && json.predictions) {
+      return json.predictions.map(pred => {
+        const mime = pred.mimeType || 'image/png';
+        const b64 = pred.bytesBase64Encoded || '';
+        const downloadBtn = `<a href="data:${mime};base64,${b64}" download="imagen_generated.${mime.split('/')[1]}" class="inline-flex items-center gap-2 mt-2 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-xs text-zinc-300 transition-colors cursor-pointer w-fit"><i class="fa-solid fa-download"></i> Sačuvaj Sliku</a>`;
+        return `<div class="flex flex-col mt-3"><img src="data:${mime};base64,${b64}" class="max-w-full h-auto rounded-xl border border-zinc-700 shadow-lg">${downloadBtn}</div>`;
+      }).join('');
+    }
+
+    // ── Embedding: embedding.values[] format ────────────────────────
+    if (category === 'embedding' && json.embedding?.values) {
+      const vals = json.embedding.values;
+      const preview = vals.slice(0, 8).map(v => v.toFixed(6)).join(', ');
+      return `
+        <div class="flex flex-col gap-2">
+          <p class="text-indigo-400 text-xs font-semibold"><i class="fa-solid fa-vector-square mr-1"></i>Vektor generisan uspešno!</p>
+          <div class="bg-zinc-900 rounded-lg p-3 border border-zinc-800">
+            <p class="text-[10px] text-zinc-500 mb-1">Dimenzije: <strong class="text-zinc-300">${vals.length}</strong></p>
+            <p class="text-[10px] text-zinc-500 mb-2">Prvih 8 vrednosti:</p>
+            <code class="text-xs text-indigo-300 font-mono break-all">[${preview}, ...]</code>
+          </div>
+          <p class="text-zinc-600 text-[11px]">Kompletan vektor dostupan u JSON konzoli ispod.</p>
+        </div>`;
+    }
+
+    // ── Standard: candidates[].content.parts[] format ─────────────
+    const parts = json.candidates?.[0]?.content?.parts;
+    if (!parts) return null;
+
     let htmlResult = '';
-    
     parts.forEach(part => {
       if (part.text) {
         htmlResult += formatMarkdown(part.text);
-      } 
+      }
       if (part.inlineData) {
         const mime = part.inlineData.mimeType;
         const b64 = part.inlineData.data;
-        
         let ext = mime.split('/')[1] || 'bin';
         if (mime.includes('jpeg')) ext = 'jpg';
         if (mime.includes('mpeg')) ext = 'mp3';
-        
         const downloadBtn = `<a href="data:${mime};base64,${b64}" download="gemini_generated.${ext}" class="inline-flex items-center gap-2 mt-2 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-xs text-zinc-300 transition-colors cursor-pointer w-fit"><i class="fa-solid fa-download"></i> Sačuvaj Fajl</a>`;
-
         if (mime.startsWith('image/')) {
           htmlResult += `<div class="mt-4 mb-2 flex flex-col"><img src="data:${mime};base64,${b64}" class="max-w-full h-auto rounded-xl border border-zinc-700 shadow-lg">${downloadBtn}</div>`;
         } else if (mime.startsWith('audio/')) {
@@ -858,7 +903,6 @@ function parseGeminiResponse(json) {
         }
       }
     });
-    
     return htmlResult || null;
   } catch (e) {
     return null;
