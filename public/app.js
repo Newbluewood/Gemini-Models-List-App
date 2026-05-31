@@ -1,5 +1,25 @@
 // ─── Aplikacija za Testiranje Gemini API ────────────────────────────
 
+// ─── Admin Unlock (URL ?unlock=SECRET → sessionStorage) ─────────────
+(function detectAdminKey() {
+  const params = new URLSearchParams(window.location.search);
+  const unlockKey = params.get('unlock');
+  if (unlockKey) {
+    sessionStorage.setItem('gemini_admin_key', unlockKey);
+    // Očisti URL da se ključ ne vidi
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+})();
+
+function getAdminKey() {
+  return sessionStorage.getItem('gemini_admin_key') || '';
+}
+
+function getAdminHeaders() {
+  const key = getAdminKey();
+  return key ? { 'x-admin-key': key } : {};
+}
+
 // Globalno stanje aplikacije
 const state = {
   configured: false,
@@ -747,7 +767,7 @@ async function checkAndShowRateLimit(category) {
   if (!premiumCategories.includes(category)) return;
 
   try {
-    const res = await fetch('/api/rate-status');
+    const res = await fetch('/api/rate-status', { headers: getAdminHeaders() });
     const status = await res.json();
     const catStatus = status[category];
     if (!catStatus) return;
@@ -755,7 +775,16 @@ async function checkAndShowRateLimit(category) {
     const badgeHtml = document.createElement('div');
     badgeHtml.id = 'rate-limit-badge';
 
-    if (catStatus.locked) {
+    if (catStatus.unlimited) {
+      // Admin / unlimited pristup
+      badgeHtml.className = 'mt-2 text-center';
+      badgeHtml.innerHTML = `
+        <span class="text-[11px] text-emerald-400 bg-emerald-950/30 border border-emerald-800/30 px-2.5 py-1 rounded-lg inline-flex items-center gap-1.5">
+          <i class="fa-solid fa-infinity text-[9px]"></i>
+          ${category.toUpperCase()}: neograničen pristup (Admin)
+        </span>`;
+      dom.btnSubmitPrompt.parentElement.appendChild(badgeHtml);
+    } else if (catStatus.locked) {
       // Zaključan — prikaži u output oblasti i disabluj dugme
       badgeHtml.className = 'mt-2 p-3 bg-rose-950/30 border border-rose-800/40 rounded-xl flex items-center gap-3';
       badgeHtml.innerHTML = `
@@ -781,7 +810,6 @@ async function checkAndShowRateLimit(category) {
       dom.btnSubmitPrompt.parentElement.appendChild(badgeHtml);
     }
   } catch (e) {
-    // Ako ne možemo da proverimo, dozvoli pristup
     console.warn('Rate limit status check failed:', e);
   }
 }
@@ -853,7 +881,8 @@ async function submitPrompt() {
     const res = await fetch('/api/generate', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAdminHeaders()
       },
       body: JSON.stringify(requestBody)
     });

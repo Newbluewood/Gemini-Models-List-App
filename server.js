@@ -129,8 +129,14 @@ function getRateLimitKey(req) {
   return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || req.connection?.remoteAddress || 'unknown';
 }
 
-function checkRateLimit(ip, category) {
+function checkRateLimit(ip, category, adminKey) {
   if (!PREMIUM_CATEGORIES.includes(category)) return { allowed: true };
+
+  // Admin bypass — ako ADMIN_SECRET postoji u .env i poklapa se
+  const adminSecret = process.env.ADMIN_SECRET;
+  if (adminSecret && adminKey === adminSecret) {
+    return { allowed: true, unlimited: true };
+  }
 
   if (!rateLimitStore[ip]) rateLimitStore[ip] = {};
   if (!rateLimitStore[ip][category]) rateLimitStore[ip][category] = { count: 0, firstUse: Date.now() };
@@ -181,17 +187,36 @@ setInterval(() => {
 // API ruta: status preostalih poziva za korisnika
 app.get('/api/rate-status', (req, res) => {
   const ip = getRateLimitKey(req);
-  const status = {};
+  const adminKey = req.headers['x-admin-key'] || '';
+  const adminSecret = process.env.ADMIN_SECRET;
+  const isAdmin = adminSecret && adminKey === adminSecret;
+
+  const status = { unlimited: isAdmin };
   for (const cat of PREMIUM_CATEGORIES) {
-    const check = checkRateLimit(ip, cat);
-    if (check.allowed) {
-      const entry = rateLimitStore[ip]?.[cat];
-      status[cat] = { remaining: entry ? RATE_LIMIT_MAX - entry.count : RATE_LIMIT_MAX, limit: RATE_LIMIT_MAX, locked: false };
+    if (isAdmin) {
+      status[cat] = { remaining: '∞', limit: '∞', locked: false, unlimited: true };
     } else {
-      status[cat] = { remaining: 0, limit: RATE_LIMIT_MAX, locked: true, resetInMinutes: check.resetInMinutes };
+      const check = checkRateLimit(ip, cat);
+      if (check.allowed) {
+        const entry = rateLimitStore[ip]?.[cat];
+        status[cat] = { remaining: entry ? RATE_LIMIT_MAX - entry.count : RATE_LIMIT_MAX, limit: RATE_LIMIT_MAX, locked: false };
+      } else {
+        status[cat] = { remaining: 0, limit: RATE_LIMIT_MAX, locked: true, resetInMinutes: check.resetInMinutes };
+      }
     }
   }
   res.json(status);
+});
+
+// API ruta: verifikuj admin ključ
+app.post('/api/verify-admin', (req, res) => {
+  const { key } = req.body;
+  const adminSecret = process.env.ADMIN_SECRET;
+  if (adminSecret && key === adminSecret) {
+    res.json({ valid: true, message: '🔓 Admin pristup otključan! Nemate ograničenja.' });
+  } else {
+    res.status(401).json({ valid: false, message: 'Neispravan admin ključ.' });
+  }
 });
 
 // ─── Pomoćna: Određuje tip modela i vraća endpoint + body builder ───
@@ -241,7 +266,8 @@ app.post('/api/generate', async (req, res) => {
 
   // ─── Rate Limit provera za premium modele ───
   const userIp = getRateLimitKey(req);
-  const rateCheck = checkRateLimit(userIp, category);
+  const adminKey = req.headers['x-admin-key'] || '';
+  const rateCheck = checkRateLimit(userIp, category, adminKey);
   if (!rateCheck.allowed) {
     return res.status(429).json({
       error: rateCheck.message,
@@ -360,8 +386,10 @@ app.post('/api/generate', async (req, res) => {
     }
 
     // Za Veo: odmah vraćamo operation objekat klijentu — on sam polla
-    // Zabeleži upotrebu za premium modele (samo posle uspešnog poziva)
-    recordUsage(userIp, category);
+    // Zabeleži upotrebu za premium modele (samo posle uspešnog poziva, ne za admine)
+    if (!rateCheck.unlimited) {
+      recordUsage(userIp, category);
+    }
 
     res.json({
       success: true,
