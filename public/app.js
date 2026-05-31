@@ -5,6 +5,19 @@ function getAdminKey() {
   return sessionStorage.getItem('gemini_admin_key') || '';
 }
 
+function updateAdminButtonUI() {
+  if (!dom.btnAdminUnlock) return;
+  if (getAdminKey()) {
+    dom.btnAdminUnlock.innerHTML = '<i class="fa-solid fa-infinity"></i> Admin Active';
+    dom.btnAdminUnlock.className = 'text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-bold cursor-pointer hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/30 transition-all';
+    dom.btnAdminUnlock.title = 'Klikni da se izloguješ';
+  } else {
+    dom.btnAdminUnlock.innerHTML = '<i class="fa-solid fa-lock-open"></i> Unlock Limit';
+    dom.btnAdminUnlock.className = 'text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-lg hover:bg-emerald-500/20 transition-all flex items-center gap-1.5 active-glow font-medium cursor-pointer';
+    dom.btnAdminUnlock.title = '';
+  }
+}
+
 function getAdminHeaders() {
   const key = getAdminKey();
   return key ? { 'x-admin-key': key } : {};
@@ -443,9 +456,29 @@ function renderVisualExample(spec) {
 }
 
 // ─── Inicijalizacija i Provera Statusa ──────────────────────────────
+// Initializacija na startu aplikacije
 async function init() {
   await loadModelSpecs();
+  fetchModels();
   setupEventListeners();
+  updateAdminButtonUI();
+  
+  // Opciona provera admin ključa na serveru pri load-u
+  const currentKey = getAdminKey();
+  if (currentKey) {
+    try {
+      const res = await fetch('/api/verify-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: currentKey })
+      });
+      const data = await res.json();
+      if (!data.valid) {
+        sessionStorage.removeItem('gemini_admin_key');
+        updateAdminButtonUI();
+      }
+    } catch(e) {}
+  }
   await checkAPIStatus();
 }
 
@@ -1185,6 +1218,19 @@ function setupEventListeners() {
   // Admin Unlock Dugme
   if (dom.btnAdminUnlock) {
     dom.btnAdminUnlock.addEventListener('click', async () => {
+      // Ako je već admin, ponudi log-out
+      if (getAdminKey()) {
+        if (confirm('Da li želite da ugasite Admin (neograničeni) pristup?')) {
+          sessionStorage.removeItem('gemini_admin_key');
+          updateAdminButtonUI();
+          // Refresh limit UI
+          const shortName = state.selectedModel ? state.selectedModel.replace('models/', '') : '';
+          const catInfo = getModelCategory(shortName);
+          if (catInfo && catInfo.category) checkAndShowRateLimit(catInfo.category);
+        }
+        return;
+      }
+
       const secret = prompt('Unesite Admin Secret za otključavanje neograničenog pristupa:');
       if (secret) {
         try {
@@ -1196,13 +1242,12 @@ function setupEventListeners() {
           const data = await res.json();
           if (data.valid) {
             sessionStorage.setItem('gemini_admin_key', secret);
+            updateAdminButtonUI();
             alert('✅ ' + data.message);
             // Refresh limit UI
             const shortName = state.selectedModel ? state.selectedModel.replace('models/', '') : '';
             const catInfo = getModelCategory(shortName);
-            if (catInfo && catInfo.category) {
-              checkAndShowRateLimit(catInfo.category);
-            }
+            if (catInfo && catInfo.category) checkAndShowRateLimit(catInfo.category);
           } else {
             alert('❌ ' + data.message);
           }
