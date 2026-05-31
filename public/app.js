@@ -914,7 +914,17 @@ function validatePromptSubmission() {
   const promptText = dom.textareaPrompt.value.trim();
   const hasModel = !!state.selectedModel;
   const hasFile = !!state.droppedFile;
-  dom.btnSubmitPrompt.disabled = !((promptText || hasFile) && hasModel);
+  const shortName = state.selectedModel ? state.selectedModel.replace('models/', '') : '';
+  const { category } = getModelCategory(shortName);
+
+  // Za Imagen i Veo — samo model je obavezan (prompt je opcion ako ima fajl)
+  // Za Veo/Imagen generisanje prompt je obavezan
+  const isMediaGen = category === 'imagen' || category === 'veo';
+  if (isMediaGen) {
+    dom.btnSubmitPrompt.disabled = !(hasModel && promptText);
+  } else {
+    dom.btnSubmitPrompt.disabled = !((promptText || hasFile) && hasModel);
+  }
 }
 
 // ─── Markdown Parser i Formatiranje ────────────────────────────────
@@ -1035,9 +1045,9 @@ function setupEventListeners() {
   });
   
   function handleDroppedFile(file) {
-    // 5MB limit
-    if (file.size > 5 * 1024 * 1024) {
-      showAlert('danger', 'Fajl je prevelik', 'Maksimalna dozvoljena veličina fajla je 5MB.');
+    // 20MB limit
+    if (file.size > 20 * 1024 * 1024) {
+      showAlert('danger', 'Fajl je prevelik', 'Maksimalna dozvoljena veličina fajla je 20MB.');
       return;
     }
 
@@ -1064,6 +1074,10 @@ function setupEventListeners() {
         dom.attachmentIcon.innerHTML = '<i class="fa-solid fa-music text-purple-400 text-lg"></i>';
       } else if (file.type.startsWith('video/')) {
         dom.attachmentIcon.innerHTML = '<i class="fa-solid fa-video text-rose-400 text-lg"></i>';
+      } else if (file.type === 'application/pdf') {
+        dom.attachmentIcon.innerHTML = '<i class="fa-regular fa-file-pdf text-red-400 text-lg"></i>';
+      } else if (file.type.startsWith('text/') || file.name.endsWith('.md') || file.name.endsWith('.json')) {
+        dom.attachmentIcon.innerHTML = '<i class="fa-regular fa-file-code text-yellow-400 text-lg"></i>';
       } else {
         dom.attachmentIcon.innerHTML = '<i class="fa-regular fa-file text-indigo-400 text-lg"></i>';
       }
