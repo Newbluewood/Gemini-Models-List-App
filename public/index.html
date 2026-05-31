@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="sr" class="h-full bg-zinc-950 text-zinc-100 selection:bg-indigo-500 selection:text-white">
 <head>
   <meta charset="UTF-8">
@@ -64,7 +64,7 @@
       transform-origin: 70% 70%;
     }
 
-    /* Demo cursor animation â€” moves toward button, clicks, moves away */
+    /* Demo cursor animation — moves toward button, clicks, moves away */
     @keyframes cursor-move {
       0%   { transform: translate(30px, 30px); opacity: 0; }
       15%  { opacity: 1; }
@@ -94,9 +94,9 @@
   <div class="absolute top-0 left-1/4 -translate-x-1/2 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
   <div class="absolute top-1/3 right-10 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
   <!-- WELCOME / ONBOARDING MODAL                                     -->
-  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
   <div id="welcome-modal" class="fixed inset-0 z-[999] flex items-center justify-center p-4" style="background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);">
     <div class="relative w-full max-w-2xl bg-zinc-900 border border-zinc-700/60 rounded-3xl shadow-2xl shadow-black/60 flex flex-col overflow-hidden" style="max-height: 90vh;">
       
@@ -112,22 +112,22 @@
             <i class="fa-solid fa-brain text-white text-2xl"></i>
           </div>
           <div>
-            <h2 class="text-2xl font-bold text-white tracking-tight">Hello! <span class="wave-emoji">ðŸ‘‹</span></h2>
-            <p class="text-zinc-400 text-sm mt-1">DobrodoÅ¡ao u <span class="text-indigo-400 font-semibold">Gemini Models Explorer</span></p>
+            <h2 class="text-2xl font-bold text-white tracking-tight">Hello! <span class="wave-emoji">👋</span></h2>
+            <p class="text-zinc-400 text-sm mt-1">Dobrodošao u <span class="text-indigo-400 font-semibold">Gemini Models Explorer</span></p>
           </div>
         </div>
 
         <!-- 2. PERSONAL STORY -->
         <div class="p-5 rounded-2xl bg-zinc-950/60 border border-zinc-800">
           <p class="text-zinc-300 text-sm leading-relaxed">
-            Ova aplikacija je nastala kao ideja â€” <strong class="text-white">kako sebi da objasnim upotrebu razliÄitih AI modela</strong> i krenuo sam od Gemini. 
-            Umesto da Äitam dokumentaciju stranu po stranu, odluÄio sam da napravim Å¾ivu aplikaciju koja Ä‡e 
-            mi pokazati <em class="text-indigo-300">koji model postoji, Å¡ta radi, kako se poziva i kako izgleda API odgovor</em> â€” 
-            sve na jednom mestu. Vremenom je narasla u pravi alat za istraÅ¾ivanje i testiranje.
+            Ova aplikacija je nastala kao ideja — <strong class="text-white">kako sebi da objasnim upotrebu različitih AI modela</strong> i krenuo sam od Gemini. 
+            Umesto da čitam dokumentaciju stranu po stranu, odlučio sam da napravim živu aplikaciju koja će 
+            mi pokazati <em class="text-indigo-300">koji model postoji, šta radi, kako se poziva i kako izgleda API odgovor</em> — 
+            sve na jednom mestu. Vremenom je narasla u pravi alat za istraživanje i testiranje.
           </p>
           <p class="text-zinc-400 text-sm mt-3 leading-relaxed">
-            Svaki model ima sopstvenu karticu sa opisom, karakteristikama, primerima upotrebe i <strong class="text-white">taÄnim kodom</strong> koji moÅ¾eÅ¡ odmah iskoristiti. 
-            A u Prompt Testeru moÅ¾eÅ¡ poslati pravi zahtev direktno na Gemini API â€” bez ikakve konfiguracije, samo sa API kljuÄem.
+            Svaki model ima sopstvenu karticu sa opisom, karakteristikama, primerima upotrebe i <strong class="text-white">tačnim kodom</strong> koji možeš odmah iskoristiti. 
+            A u Prompt Testeru možeš poslati pravi zahtev direktno na Gemini API — bez ikakve konfiguracije, samo sa API ključem.
           </p>
         </div>
 
@@ -139,25 +139,25 @@
           <ol class="space-y-2 text-sm text-zinc-400 list-none">
             <li class="flex items-start gap-3">
               <span class="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
-              <span>Klikni <strong class="text-white">â€žPreuzmi i Testiraj Modele"</strong> â€” aplikacija povlaÄi aktuelnu listu svih Gemini modela direktno sa Google API-ja.</span>
+              <span>Klikni <strong class="text-white">„Preuzmi i Testiraj Modele"</strong> — aplikacija povlači aktuelnu listu svih Gemini modela direktno sa Google API-ja.</span>
             </li>
             <li class="flex items-start gap-3">
               <span class="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
-              <span>Na svakoj kartici modela klikni <strong class="text-white">â€žDetalji"</strong> â€” otvara se modal sa opisom, primerima i gotovim kodom.</span>
+              <span>Na svakoj kartici modela klikni <strong class="text-white">„Detalji"</strong> — otvara se modal sa opisom, primerima i gotovim kodom.</span>
             </li>
             <li class="flex items-start gap-3">
               <span class="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
-              <span>Klikni na samu karticu modela da ga <strong class="text-white">izabereÅ¡ za testiranje</strong> â€” desno se otvara odgovarajuÄ‡i Prompt Tester.</span>
+              <span>Klikni na samu karticu modela da ga <strong class="text-white">izabereš za testiranje</strong> — desno se otvara odgovarajući Prompt Tester.</span>
             </li>
             <li class="flex items-start gap-3">
               <span class="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
-              <span>UpiÅ¡i prompt (ili prevuci fajl), podesi parametre i klikni <strong class="text-white">â€žPoÅ¡alji Zahtev"</strong>.</span>
+              <span>Upiši prompt (ili prevuci fajl), podesi parametre i klikni <strong class="text-white">„Pošalji Zahtev"</strong>.</span>
             </li>
           </ol>
 
           <!-- Animated demo card -->
           <div class="mt-4 p-4 rounded-2xl bg-zinc-950/80 border border-zinc-800 relative overflow-hidden">
-            <p class="text-[10px] text-zinc-500 uppercase tracking-wider font-bold mb-3">Animirani primer â€” kartica modela</p>
+            <p class="text-[10px] text-zinc-500 uppercase tracking-wider font-bold mb-3">Animirani primer — kartica modela</p>
             <div class="demo-card rounded-xl border border-zinc-700 bg-zinc-900 p-3 flex items-center justify-between relative">
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-1">
@@ -182,47 +182,47 @@
                 </div>
               </div>
             </div>
-            <p class="text-[10px] text-zinc-600 mt-2 text-center italic">Kursor kliÄ‡e na â€žDetalji" i otvara modal sa specifikacijom modela</p>
+            <p class="text-[10px] text-zinc-600 mt-2 text-center italic">Kursor kliće na „Detalji" i otvara modal sa specifikacijom modela</p>
           </div>
         </div>
 
         <!-- 4. DYNAMIC CONFIG PANELS -->
         <div>
           <h3 class="text-sm font-bold text-zinc-200 uppercase tracking-wider mb-3 flex items-center gap-2">
-            <i class="fa-solid fa-sliders text-purple-400"></i> DinamiÄki Konfig Paneli
+            <i class="fa-solid fa-sliders text-purple-400"></i> Dinamički Konfig Paneli
           </h3>
-          <p class="text-zinc-400 text-xs mb-3 leading-relaxed">Prompt Tester se <strong class="text-white">automatski prilagoÄ‘ava</strong> tipu modela koji si izabrao â€” prikazuje samo relevantne opcije:</p>
+          <p class="text-zinc-400 text-xs mb-3 leading-relaxed">Prompt Tester se <strong class="text-white">automatski prilagođava</strong> tipu modela koji si izabrao — prikazuje samo relevantne opcije:</p>
           <div class="grid grid-cols-1 gap-2">
             <div class="flex items-center gap-3 p-2.5 rounded-xl bg-zinc-950/40 border border-zinc-800/60">
-              <span class="text-lg">ðŸ”µ</span>
+              <span class="text-lg">🔵</span>
               <div>
                 <span class="text-xs font-semibold text-zinc-200">Standard (Gemini, Gemma...)</span>
                 <span class="text-zinc-500 text-[11px] ml-2">Temperature slider + Max Tokens</span>
               </div>
             </div>
             <div class="flex items-center gap-3 p-2.5 rounded-xl bg-zinc-950/40 border border-amber-900/30">
-              <span class="text-lg">ðŸŸ¡</span>
+              <span class="text-lg">🟡</span>
               <div>
                 <span class="text-xs font-semibold text-zinc-200">Imagen (generisanje slika)</span>
-                <span class="text-zinc-500 text-[11px] ml-2">Aspect Ratio + Broj slika (1â€“4)</span>
+                <span class="text-zinc-500 text-[11px] ml-2">Aspect Ratio + Broj slika (1–4)</span>
               </div>
             </div>
             <div class="flex items-center gap-3 p-2.5 rounded-xl bg-zinc-950/40 border border-purple-900/30">
-              <span class="text-lg">ðŸŸ£</span>
+              <span class="text-lg">🟣</span>
               <div>
                 <span class="text-xs font-semibold text-zinc-200">Veo (generisanje videa)</span>
                 <span class="text-zinc-500 text-[11px] ml-2">Aspect Ratio + Trajanje (5s / 8s)</span>
               </div>
             </div>
             <div class="flex items-center gap-3 p-2.5 rounded-xl bg-zinc-950/40 border border-emerald-900/30">
-              <span class="text-lg">ðŸŸ¢</span>
+              <span class="text-lg">🟢</span>
               <div>
                 <span class="text-xs font-semibold text-zinc-200">TTS / Lyria (audio)</span>
                 <span class="text-zinc-500 text-[11px] ml-2">Izbor glasa (Kore, Aoede, Puck...)</span>
               </div>
             </div>
             <div class="flex items-center gap-3 p-2.5 rounded-xl bg-zinc-950/40 border border-indigo-900/30">
-              <span class="text-lg">ðŸ”·</span>
+              <span class="text-lg">🔷</span>
               <div>
                 <span class="text-xs font-semibold text-zinc-200">Embedding (vektori)</span>
                 <span class="text-zinc-500 text-[11px] ml-2">Prikazuje info + dimenzije generisanog vektora</span>
@@ -236,22 +236,22 @@
           <h3 class="text-sm font-bold text-zinc-200 uppercase tracking-wider mb-3 flex items-center gap-2">
             <i class="fa-solid fa-code-branch text-amber-400"></i> API Endpoint Arhitektura
           </h3>
-          <p class="text-zinc-400 text-xs mb-3 leading-relaxed">Nije svaki model isti! RazliÄiti modeli koriste <strong class="text-white">razliÄite HTTP rute i formate zahteva</strong> â€” aplikacija to automatski reÅ¡ava umesto tebe:</p>
+          <p class="text-zinc-400 text-xs mb-3 leading-relaxed">Nije svaki model isti! Različiti modeli koriste <strong class="text-white">različite HTTP rute i formate zahteva</strong> — aplikacija to automatski rešava umesto tebe:</p>
           <div class="space-y-2 font-mono text-[11px]">
             <div class="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800 flex items-start gap-3">
               <i class="fa-solid fa-image text-amber-400 mt-0.5 flex-shrink-0"></i>
               <div>
                 <span class="text-amber-300 font-bold">Imagen (3 modela)</span>
-                <span class="text-zinc-500 mx-2">â†’</span>
+                <span class="text-zinc-500 mx-2">→</span>
                 <code class="text-amber-400">:predict</code>
-                <span class="text-zinc-600 ml-2 font-sans text-[10px]">Synhroni, vraÄ‡a base64 slike u predictions[]</span>
+                <span class="text-zinc-600 ml-2 font-sans text-[10px]">Synhroni, vraća base64 slike u predictions[]</span>
               </div>
             </div>
             <div class="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800 flex items-start gap-3">
               <i class="fa-solid fa-film text-purple-400 mt-0.5 flex-shrink-0"></i>
               <div>
                 <span class="text-purple-300 font-bold">Veo (6 modela)</span>
-                <span class="text-zinc-500 mx-2">â†’</span>
+                <span class="text-zinc-500 mx-2">→</span>
                 <code class="text-purple-400">:predictLongRunning</code>
                 <span class="text-zinc-600 ml-2 font-sans text-[10px]">Asinhrono + polling dok video nije gotov</span>
               </div>
@@ -260,25 +260,25 @@
               <i class="fa-solid fa-music text-emerald-400 mt-0.5 flex-shrink-0"></i>
               <div>
                 <span class="text-emerald-300 font-bold">Lyria (2 modela)</span>
-                <span class="text-zinc-500 mx-2">â†’</span>
+                <span class="text-zinc-500 mx-2">→</span>
                 <code class="text-emerald-400">:generateContent</code>
-                <span class="text-zinc-600 ml-2 font-sans text-[10px]">Audio modality, vraÄ‡a audio u inlineData</span>
+                <span class="text-zinc-600 ml-2 font-sans text-[10px]">Audio modality, vraća audio u inlineData</span>
               </div>
             </div>
             <div class="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800 flex items-start gap-3">
               <i class="fa-solid fa-vector-square text-indigo-400 mt-0.5 flex-shrink-0"></i>
               <div>
                 <span class="text-indigo-300 font-bold">Embedding modeli</span>
-                <span class="text-zinc-500 mx-2">â†’</span>
+                <span class="text-zinc-500 mx-2">→</span>
                 <code class="text-indigo-400">:embedContent</code>
-                <span class="text-zinc-600 ml-2 font-sans text-[10px]">VraÄ‡a numeriÄki vektor, ne tekst</span>
+                <span class="text-zinc-600 ml-2 font-sans text-[10px]">Vraća numerički vektor, ne tekst</span>
               </div>
             </div>
             <div class="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800 flex items-start gap-3">
               <i class="fa-solid fa-comment-dots text-zinc-400 mt-0.5 flex-shrink-0"></i>
               <div>
                 <span class="text-zinc-300 font-bold">Sve ostalo (Gemini, Gemma...)</span>
-                <span class="text-zinc-500 mx-2">â†’</span>
+                <span class="text-zinc-500 mx-2">→</span>
                 <code class="text-zinc-400">:generateContent</code>
                 <span class="text-zinc-600 ml-2 font-sans text-[10px]">Standardni tekst/multimodalni odgovor</span>
               </div>
@@ -293,20 +293,20 @@
           </h3>
           <ul class="space-y-1.5 text-xs text-zinc-400">
             <li class="flex items-start gap-2"><i class="fa-solid fa-check text-indigo-500 mt-0.5 flex-shrink-0 text-[10px]"></i> Prevuci sliku, PDF, audio ili video direktno na polje za prompt</li>
-            <li class="flex items-start gap-2"><i class="fa-solid fa-check text-indigo-500 mt-0.5 flex-shrink-0 text-[10px]"></i> Svi generisani mediji (slike, audio, video) mogu se odmah preuzeti dugmetom â€žSaÄuvaj"</li>
-            <li class="flex items-start gap-2"><i class="fa-solid fa-check text-indigo-500 mt-0.5 flex-shrink-0 text-[10px]"></i> JSON konzola prikazuje taÄan request i response za svaki API poziv â€” korisno za debug</li>
-            <li class="flex items-start gap-2"><i class="fa-solid fa-check text-indigo-500 mt-0.5 flex-shrink-0 text-[10px]"></i> Veo video generisanje traje 1â€“3 minuta â€” prati progress bar i saÄekaj</li>
+            <li class="flex items-start gap-2"><i class="fa-solid fa-check text-indigo-500 mt-0.5 flex-shrink-0 text-[10px]"></i> Svi generisani mediji (slike, audio, video) mogu se odmah preuzeti dugmetom „Sačuvaj"</li>
+            <li class="flex items-start gap-2"><i class="fa-solid fa-check text-indigo-500 mt-0.5 flex-shrink-0 text-[10px]"></i> JSON konzola prikazuje tačan request i response za svaki API poziv — korisno za debug</li>
+            <li class="flex items-start gap-2"><i class="fa-solid fa-check text-indigo-500 mt-0.5 flex-shrink-0 text-[10px]"></i> Veo video generisanje traje 1–3 minuta — prati progress bar i sačekaj</li>
           </ul>
         </div>
 
         <!-- 7. USAGE RULES / FAIR USE -->
         <div class="p-5 rounded-2xl bg-rose-950/15 border border-rose-800/30">
           <h3 class="text-sm font-bold text-rose-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-            <i class="fa-solid fa-shield-halved text-rose-400"></i> Pravila koriÅ¡Ä‡enja (Fair Use)
+            <i class="fa-solid fa-shield-halved text-rose-400"></i> Pravila korišćenja (Fair Use)
           </h3>
           <p class="text-zinc-400 text-xs leading-relaxed mb-4">
-            Tekstualni modeli (Gemini, Gemma, Embedding) su <strong class="text-emerald-400">besplatni i neograniÄeni</strong>. 
-            MeÄ‘utim, premium modeli koji generiÅ¡u slike, video ili muziku koriste <strong class="text-white">plaÄ‡ene API pozive</strong>, 
+            Tekstualni modeli (Gemini, Gemma, Embedding) su <strong class="text-emerald-400">besplatni i neograničeni</strong>. 
+            Međutim, premium modeli koji generišu slike, video ili muziku koriste <strong class="text-white">plaćene API pozive</strong>, 
             pa su limitirani kako bi svi korisnici imali fer pristup:
           </p>
           
@@ -346,9 +346,9 @@
           <div class="mt-4 p-3 rounded-lg bg-zinc-950/40 border border-zinc-800/60 text-[11px] text-zinc-500 flex items-start gap-2">
             <i class="fa-solid fa-circle-info mt-0.5 text-zinc-600 flex-shrink-0"></i>
             <span>
-              Posle iskoriÅ¡Ä‡enih poziva, pristup se automatski <strong class="text-zinc-300">otkljuÄava za 2 sata</strong>. 
-              Broj preostalih poziva videÄ‡eÅ¡ ispod dugmeta â€žPoÅ¡alji Zahtev" kada izabereÅ¡ premium model. 
-              Tekstualni modeli (Gemini, Gemma...) nemaju ograniÄenja.
+              Posle iskorišćenih poziva, pristup se automatski <strong class="text-zinc-300">otključava za 2 sata</strong>. 
+              Broj preostalih poziva videćeš ispod dugmeta „Pošalji Zahtev" kada izabereš premium model. 
+              Tekstualni modeli (Gemini, Gemma...) nemaju ograničenja.
             </span>
           </div>
         </div>
@@ -356,11 +356,11 @@
         <!-- 8. SELF-HOSTING / UNLIMITED ACCESS -->
         <div class="p-5 rounded-2xl bg-zinc-950/60 border border-zinc-800">
           <h3 class="text-sm font-bold text-zinc-200 uppercase tracking-wider mb-3 flex items-center gap-2">
-            <i class="fa-solid fa-server text-indigo-400"></i> Å½eliÅ¡ neograniÄen pristup?
+            <i class="fa-solid fa-server text-indigo-400"></i> Neograničen pristup?
           </h3>
           <p class="text-zinc-400 text-xs leading-relaxed mb-4">
-            Ova aplikacija je <strong class="text-white">open source</strong>! MoÅ¾eÅ¡ je pokrenuti lokalno sa sopstvenim API kljuÄem 
-            i dobiti <strong class="text-emerald-400">neograniÄen pristup svim modelima</strong> â€” bez ikakvih limita.
+            Ova aplikacija je <strong class="text-white">open source</strong>! Pokreni je lokalno sa sopstvenim API ključem 
+            i dobij <strong class="text-emerald-400">neograničen pristup svim modelima</strong> — bez ikakvih limita.
           </p>
           
           <div class="space-y-3">
@@ -374,7 +374,7 @@
             <div class="flex items-start gap-3">
               <span class="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
               <div class="text-xs text-zinc-400 leading-relaxed">
-                <strong class="text-zinc-200">Napravi API kljuÄ</strong> na 
+                <strong class="text-zinc-200">Napravi API ključ</strong> na 
                 <a href="https://aistudio.google.com/apikey" target="_blank" class="text-indigo-400 underline hover:text-indigo-300">Google AI Studio</a>. 
                 Za Imagen/Veo/Lyria, klikni na model u AI Studio i prihvati <strong class="text-white">billing</strong> (pay-as-you-go).
               </div>
@@ -382,7 +382,7 @@
             <div class="flex items-start gap-3">
               <span class="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
               <div class="text-xs text-zinc-400 leading-relaxed">
-                <strong class="text-zinc-200">Kreiraj <code class="text-emerald-400">.env</code> fajl</strong> u root-u projekta:
+                <strong class="text-zinc-200">Kreiraj .env fajl</strong> u root-u projekta:
                 <code class="block mt-1 p-2 bg-zinc-900 rounded-lg text-emerald-300 font-mono text-[11px] border border-zinc-800 whitespace-pre">GEMINI_API_KEY=tvoj_kljuc_ovde
 ADMIN_SECRET=tvoj_password</code>
               </div>
@@ -397,9 +397,9 @@ ADMIN_SECRET=tvoj_password</code>
             <div class="flex items-start gap-3">
               <span class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">5</span>
               <div class="text-xs text-zinc-400 leading-relaxed">
-                <strong class="text-zinc-200">OtkljuÄaj neograniÄen pristup</strong> â€” dodaj <code class="text-emerald-400">?unlock=tvoj_password</code> na kraj URL-a:
+                <strong class="text-zinc-200">Otključaj</strong> — dodaj <code class="text-emerald-400">?unlock=tvoj_password</code> na kraj URL-a:
                 <code class="block mt-1 p-2 bg-zinc-900 rounded-lg text-emerald-300 font-mono text-[11px] border border-zinc-800">http://localhost:3000?unlock=tvoj_password</code>
-                <span class="text-zinc-500 text-[10px] mt-1 block"><i class="fa-solid fa-circle-info mr-1"></i>Password je isti kao ADMIN_SECRET u .env fajlu. URL se automatski oÄisti posle otkljuÄavanja.</span>
+                <span class="text-zinc-500 text-[10px] mt-1 block"><i class="fa-solid fa-circle-info mr-1"></i>Password = ADMIN_SECRET iz .env fajla. URL se automatski očisti.</span>
               </div>
             </div>
           </div>
@@ -415,7 +415,7 @@ ADMIN_SECRET=tvoj_password</code>
         </label>
         <button id="welcome-close-btn" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-sm transition-all duration-200 hover:shadow-lg hover:shadow-indigo-500/25 active:scale-[0.97] cursor-pointer flex items-center gap-2">
           <i class="fa-solid fa-rocket text-xs"></i>
-          PoÄni sa radom!
+          Počni sa radom!
         </button>
       </div>
 
@@ -479,7 +479,7 @@ ADMIN_SECRET=tvoj_password</code>
             <div class="p-4 rounded-2xl bg-zinc-950/60 border border-zinc-800/80">
               <div class="flex items-center justify-between mb-2">
                 <span class="text-xs text-zinc-400 font-medium">GEMINI_API_KEY (.env)</span>
-                <span id="key-badge" class="px-2 py-0.5 rounded-md text-[10px] uppercase font-bold bg-zinc-800 text-zinc-400">Nije uÄitan</span>
+                <span id="key-badge" class="px-2 py-0.5 rounded-md text-[10px] uppercase font-bold bg-zinc-800 text-zinc-400">Nije učitan</span>
               </div>
               <div class="flex items-center justify-between">
                 <span id="masked-key-value" class="text-sm font-mono-custom text-zinc-300">Nije dostupno</span>
@@ -527,8 +527,8 @@ ADMIN_SECRET=tvoj_password</code>
             <!-- Skeleton items or fallback info -->
             <div class="text-center py-12 text-zinc-500 border border-dashed border-zinc-800 rounded-2xl bg-zinc-950/20 flex flex-col items-center justify-center">
               <i class="fa-solid fa-layer-group text-3xl mb-3 text-zinc-700"></i>
-              <p class="text-sm">Nema uÄitanih modela</p>
-              <p class="text-xs text-zinc-600 mt-1 max-w-[200px]">Kliknite dugme iznad da preuzmete listu modela sa vaÅ¡eg naloga</p>
+              <p class="text-sm">Nema učitanih modela</p>
+              <p class="text-xs text-zinc-600 mt-1 max-w-[200px]">Kliknite dugme iznad da preuzmete listu modela sa vašeg naloga</p>
             </div>
           </div>
         </section>
@@ -556,11 +556,11 @@ ADMIN_SECRET=tvoj_password</code>
             <div>
               <label class="block text-xs text-zinc-500 font-semibold uppercase tracking-wider mb-2">Izabrani Gemini Model za Test</label>
               <select id="select-active-model" class="w-full py-3 px-4 rounded-2xl bg-zinc-950 border border-zinc-800 text-zinc-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer">
-                <option value="" disabled selected>Prvo uÄitajte ili izaberite model iz kolone levo</option>
+                <option value="" disabled selected>Prvo učitajte ili izaberite model iz kolone levo</option>
               </select>
             </div>
 
-            <!-- Dynamic Config Panel â€” menja se po tipu modela -->
+            <!-- Dynamic Config Panel — menja se po tipu modela -->
             <div id="config-panel-standard" class="grid grid-cols-1 md:grid-cols-2 gap-5 p-4 rounded-2xl bg-zinc-950/40 border border-zinc-800/80">
               <div>
                 <div class="flex items-center justify-between mb-1.5">
@@ -571,7 +571,7 @@ ADMIN_SECRET=tvoj_password</code>
               </div>
               <div>
                 <div class="flex items-center justify-between mb-1.5">
-                  <span class="text-xs font-medium text-zinc-400">Maksimalno Tokena (DuÅ¾ina)</span>
+                  <span class="text-xs font-medium text-zinc-400">Maksimalno Tokena (Dužina)</span>
                   <span class="text-[10px] text-zinc-500">(Opciono)</span>
                 </div>
                 <input id="input-tokens" type="number" placeholder="npr. 1024, 2048 ili ostavi prazno" class="w-full py-2 px-3 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-200 text-xs focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
@@ -586,12 +586,12 @@ ADMIN_SECRET=tvoj_password</code>
                   <option value="1:1">1:1 (Kvadrat)</option>
                   <option value="16:9" selected>16:9 (Landscape)</option>
                   <option value="9:16">9:16 (Portrait)</option>
-                  <option value="4:3">4:3 (KlasiÄni)</option>
-                  <option value="3:4">3:4 (Portrait klasiÄni)</option>
+                  <option value="4:3">4:3 (Klasični)</option>
+                  <option value="3:4">3:4 (Portrait klasični)</option>
                 </select>
               </div>
               <div>
-                <label class="text-xs font-medium text-zinc-400 block mb-1.5">Broj Slika (1â€“4)</label>
+                <label class="text-xs font-medium text-zinc-400 block mb-1.5">Broj Slika (1–4)</label>
                 <input id="input-num-images" type="number" min="1" max="4" value="1" class="w-full py-2 px-3 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-200 text-xs focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
               </div>
             </div>
@@ -601,7 +601,7 @@ ADMIN_SECRET=tvoj_password</code>
               <div>
                 <label class="text-xs font-medium text-zinc-400 block mb-1.5">Aspect Ratio Videa</label>
                 <select id="select-aspect-ratio-veo" class="w-full py-2 px-3 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-200 text-xs focus:outline-none focus:border-purple-500 cursor-pointer">
-                  <option value="16:9" selected>16:9 (Landscape â€” PreporuÄeno)</option>
+                  <option value="16:9" selected>16:9 (Landscape — Preporučeno)</option>
                   <option value="9:16">9:16 (Portrait / Reels)</option>
                 </select>
               </div>
@@ -620,18 +620,18 @@ ADMIN_SECRET=tvoj_password</code>
               <div>
                 <label class="text-xs font-medium text-zinc-400 block mb-1.5">Glas (Voice)</label>
                 <select id="select-voice-name" class="w-full py-2 px-3 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-200 text-xs focus:outline-none focus:border-emerald-500 cursor-pointer">
-                  <option value="Kore">Kore (Å½enski, neutralan)</option>
-                  <option value="Aoede">Aoede (Å½enski, topao)</option>
-                  <option value="Puck">Puck (MuÅ¡ki, mlad)</option>
-                  <option value="Charon">Charon (MuÅ¡ki, dubok)</option>
-                  <option value="Fenrir">Fenrir (MuÅ¡ki, snaÅ¾an)</option>
-                  <option value="Leda">Leda (Å½enski, jasan)</option>
+                  <option value="Kore">Kore (Ženski, neutralan)</option>
+                  <option value="Aoede">Aoede (Ženski, topao)</option>
+                  <option value="Puck">Puck (Muški, mlad)</option>
+                  <option value="Charon">Charon (Muški, dubok)</option>
+                  <option value="Fenrir">Fenrir (Muški, snažan)</option>
+                  <option value="Leda">Leda (Ženski, jasan)</option>
                 </select>
               </div>
               <div class="flex items-center">
                 <div class="p-2.5 bg-emerald-950/30 border border-emerald-800/30 rounded-lg text-[11px] text-emerald-400 leading-relaxed">
                   <i class="fa-solid fa-circle-info mr-1"></i>
-                  Model generiÅ¡e audio fajl koji moÅ¾ete odmah Äuti i preuzeti.
+                  Model generiše audio fajl koji možete odmah čuti i preuzeti.
                 </div>
               </div>
             </div>
@@ -640,7 +640,7 @@ ADMIN_SECRET=tvoj_password</code>
             <div id="config-panel-embedding" class="hidden p-4 rounded-2xl bg-zinc-950/40 border border-indigo-800/30">
               <div class="text-[11px] text-indigo-300 leading-relaxed flex items-start gap-2">
                 <i class="fa-solid fa-vector-square mt-0.5 text-indigo-400 flex-shrink-0"></i>
-                <span>Embedding modeli ne primaju konfiguracione parametre. VaÅ¡ tekst Ä‡e biti konvertovan u <strong>numeriÄki vektor</strong> visoke dimenzionalnosti koji moÅ¾ete koristiti za semantiÄku pretragu ili clustering.</span>
+                <span>Embedding modeli ne primaju konfiguracione parametre. Vaš tekst će biti konvertovan u <strong>numerički vektor</strong> visoke dimenzionalnosti koji možete koristiti za semantičku pretragu ili clustering.</span>
               </div>
             </div>
 
@@ -650,16 +650,16 @@ ADMIN_SECRET=tvoj_password</code>
                 <label for="textarea-prompt" class="block text-xs text-zinc-500 font-semibold uppercase tracking-wider">Poruka / Prompt</label>
                 <span class="text-[10px] text-zinc-600 bg-zinc-900/50 px-2 py-0.5 rounded border border-zinc-800">
                   <i class="fa-solid fa-file-import mr-1"></i>Prevuci fajl ovde
-                  <span id="supported-types-hint" class="ml-1 text-zinc-700">Â· slika, audio, video, PDF</span>
+                  <span id="supported-types-hint" class="ml-1 text-zinc-700">· slika, audio, video, PDF</span>
                 </span>
               </div>
-              <textarea id="textarea-prompt" rows="4" placeholder='NapiÅ¡ite neÅ¡to za Gemini... npr: "Analiziraj sliku u prilogu i ukloni robota !"' class="w-full py-3.5 px-4 rounded-2xl bg-zinc-950 border border-zinc-800 text-zinc-200 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 placeholder-zinc-600 transition-all duration-300 resize-none"></textarea>
+              <textarea id="textarea-prompt" rows="4" placeholder='Napišite nešto za Gemini... npr: "Analiziraj sliku u prilogu i ukloni robota !"' class="w-full py-3.5 px-4 rounded-2xl bg-zinc-950 border border-zinc-800 text-zinc-200 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 placeholder-zinc-600 transition-all duration-300 resize-none"></textarea>
               
               <!-- Drag Overlay -->
               <div id="drag-overlay" class="absolute inset-0 top-6 bg-indigo-500/20 backdrop-blur-sm border-2 border-dashed border-indigo-400 rounded-2xl flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity z-10 hidden">
                 <i class="fa-solid fa-cloud-arrow-up text-3xl text-indigo-400 mb-2"></i>
                 <span class="text-sm font-bold text-indigo-300">Spusti fajl ovde</span>
-                <span class="text-xs text-indigo-400/70 mt-1">Slika Â· Audio Â· Video Â· PDF Â· Tekst</span>
+                <span class="text-xs text-indigo-400/70 mt-1">Slika · Audio · Video · PDF · Tekst</span>
               </div>
             </div>
 
@@ -681,7 +681,7 @@ ADMIN_SECRET=tvoj_password</code>
 
             <button id="btn-submit-prompt" class="w-full py-3.5 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" disabled>
               <i class="fa-solid fa-bolt text-xs"></i>
-              PoÅ¡alji Zahtev Modelu
+              Pošalji Zahtev Modelu
             </button>
 
           </div>
@@ -791,7 +791,7 @@ ADMIN_SECRET=tvoj_password</code>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-zinc-850 pt-5">
           <div>
             <h4 class="text-xs font-semibold text-purple-400 uppercase tracking-wider mb-3.5 flex items-center gap-1.5">
-              <i class="fa-solid fa-list-check text-purple-400"></i> NajÄeÅ¡Ä‡e Primene (Use Cases)
+              <i class="fa-solid fa-list-check text-purple-400"></i> Najčešće Primene (Use Cases)
             </h4>
             <ul id="modal-model-usecases" class="space-y-2 text-xs text-zinc-400 list-none pl-0">
               <!-- usecases will be dynamically loaded here -->
@@ -799,7 +799,7 @@ ADMIN_SECRET=tvoj_password</code>
           </div>
           <div>
             <h4 class="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-3.5 flex items-center gap-1.5">
-              <i class="fa-solid fa-star text-indigo-400"></i> KljuÄne Karakteristike
+              <i class="fa-solid fa-star text-indigo-400"></i> Ključne Karakteristike
             </h4>
             <ul id="modal-model-features" class="space-y-2 text-xs text-zinc-400 list-none pl-0">
               <!-- features will be dynamically loaded here -->
@@ -811,7 +811,7 @@ ADMIN_SECRET=tvoj_password</code>
         <div class="border-t border-zinc-800/50 pt-5 mt-5">
           <div class="flex border-b border-zinc-800 mb-4 text-xs font-medium">
             <button id="modal-tab-code" class="py-2.5 px-4 text-emerald-400 border-b-2 border-emerald-500 -mb-px focus:outline-none transition-colors">Primer Koda</button>
-            <button id="modal-tab-visual" class="py-2.5 px-4 text-zinc-500 hover:text-zinc-300 border-b-2 border-transparent -mb-px focus:outline-none transition-colors">PraktiÄan Primer</button>
+            <button id="modal-tab-visual" class="py-2.5 px-4 text-zinc-500 hover:text-zinc-300 border-b-2 border-transparent -mb-px focus:outline-none transition-colors">Praktičan Primer</button>
           </div>
 
           <!-- Tab Content: Code -->
@@ -838,6 +838,6 @@ ADMIN_SECRET=tvoj_password</code>
   </div>
 
   <!-- App Main Javascript Logic (cache-bust sa verzijom) -->
-  <script src="app.js?v=2026053106"></script>
+  <script src="app.js?v=2026053107"></script>
 </body>
 </html>
