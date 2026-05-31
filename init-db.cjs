@@ -38,15 +38,17 @@ db.transaction(() => {
     else if (key === 'gemini-2.5-pro' || key === 'gemini-1.5-pro' || key === 'gemini-3-pro-preview' || key.includes('pro-latest')) {
       example_type = 'text';
       example_data = {
-        prompt: "Na osnovu prethodno generisanog JSON dataseta, analiziraj podatke i reci koji telefon donosi najveći profit.",
-        response: "Iako je **Pixel 7a** ubedljivo najprodavaniji model po količini (2.100 komada), najveći ukupni profit doneo je **Pixel 8** (360.000$) zahvaljujući boljoj marži. Preporučujem pojačanje marketinga za Pixel 8 u januaru."
+        prompt: "Analiziraj Excel tabelu sa priloženog screenshot-a radne površine i izračunaj koji model telefona donosi najveći ukupan profit.",
+        inputMediaUrl: "examples/desktop-sample.png",
+        response: "Na osnovu prikazane tabele u Excel-u, iako je **Pixel 7a** najprodavaniji, najveći ukupni profit doneo je **Pixel 8** (360.000$) zahvaljujući boljoj marži."
       };
     }
     else if (key.includes('embedding')) {
       example_type = 'text';
       example_data = {
-        prompt: "Pretvori prethodnu analizu prodaje (gde je Pixel 8 najprofitabilniji) u semantički vektor za bazu znanja.",
-        response: "[0.0142, -0.2215, 0.4451, 0.8812, -0.0054, 0.1129, 0.5532, -0.9912, 0.3341, ...]\n\n*Napomena: Ovi brojevi sada omogućavaju sistemu da pronađe ovu analizu kada korisnik pretražuje 'Koji telefon je doneo najviše novca?'*"
+        prompt: "Pretvori priloženu sliku robota u multimodalni semantički vektor (Image Embedding) za vizuelnu pretragu.",
+        inputMediaUrl: "examples/image-sample.png",
+        response: "[0.0142, -0.2215, 0.4451, 0.8812, -0.0054, 0.1129, 0.5532, -0.9912, 0.3341, ...]\n\n*Napomena: Ovi brojevi sada omogućavaju sistemu da pronađe ovu sliku kada korisnik u pretragu ukuca 'futuristički robot u neonskoj šumi'.*"
       };
     }
 
