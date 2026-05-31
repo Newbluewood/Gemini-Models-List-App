@@ -119,7 +119,7 @@ db.transaction(() => {
       example_type = 'video';
       example_data = {
         prompt: "Koristeći sliku robota kao početni frejm i lo-fi beat kao muziku, animiraj scenu: robot polako podiže glavu, a neonske lampice na drveću pulsiraju u ritmu muzike.",
-        mediaUrl: "examples/video-sample.mp4"
+        mediaUrl: "examples/video_generated_by_veo31.mp4"
       };
     }
     
@@ -135,9 +135,9 @@ db.transaction(() => {
     else if (key === 'gemini-3-flash-preview' || key === 'gemini-flash-latest') {
       example_type = 'text';
       example_data = {
-        prompt: "Pogledaj 'video-sample.mp4' i ukratko opiši šta se dešava u sceni i da li ima muzike (Video-to-Text Analysis).",
-        inputMediaUrl: "examples/video-sample.mp4",
-        response: "Na video snimku se vidi detaljan kadar futurističkog robota koji polako podiže glavu dok stoji u mračnoj šumi. Šuma je osvetljena snažnim crvenim neonskim svetlima koja pulsiraju tačno u ritmu lo-fi hip-hop muzike (sintisajzeri) koja svira u pozadini."
+        prompt: "Pogledaj 'video_generated_by_veo31.mp4' i ukratko opiši šta se dešava u sceni (Video-to-Text Analysis).",
+        inputMediaUrl: "examples/video_generated_by_veo31.mp4",
+        response: "Na video snimku se vidi detaljan kadar futurističkog robota koji polako podiže glavu dok stoji u mračnoj šumi. Šuma je osvetljena snažnim neonskim svetlima koja pulsiraju u ritmu lo-fi hip-hop muzike koja svira u pozadini. Video je generisan pomoću Veo 3.1 Fast modela."
       };
     }
     
