@@ -6,7 +6,7 @@ Gemini Models List App je interaktivna veb aplikacija koja korisnicima omogućav
 
 ## 🚀 Mogućnosti Aplikacije
 
-- **Sveobuhvatna Lista Modela:** Pregled svih 52 modela sa opisima, slučajevima upotrebe i tehničkim karakteristikama.
+- **Sveobuhvatna Lista Modela:** Pregled svih 50 modela sa opisima, slučajevima upotrebe i tehničkim karakteristikama.
 - **Interaktivni Tester (Playground):** Šaljite zahteve modelima i pratite odgovore u realnom vremenu uz "JSON konzolu" ispod haube.
 - **Multimodalna Podrška:** _Drag & Drop_ sistem omogućava ubacivanje slika, videa i audio fajlova direktno u Prompt.
 - **Praktični Primeri (Mock Baza):** Svaki model dolazi sa "Vizuelnim primerom" (Tekst, Audio, Slika, Video) koji pokazuje šta sve konkretan model može.
