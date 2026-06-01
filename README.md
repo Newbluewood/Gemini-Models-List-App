@@ -2,7 +2,7 @@
 
 🟢 **Live Demo:** [https://gemini-models-list-app.onrender.com](https://gemini-models-list-app.onrender.com)
 
-Gemini Models List App je interaktivna veb aplikacija koja korisnicima omogućava da pregledaju, analiziraju i testiraju svih 52 zvanična Google Gemini AI modela na jednom mestu. Aplikacija služi kao ultimativni katalog i živi tester (playground) za eksperimentisanje sa tekstualnim, vizuelnim i audio funkcijama najnovijih Gemini modela.
+Gemini Models List App je interaktivna veb aplikacija koja korisnicima omogućava da pregledaju, analiziraju i testiraju svih 50 zvanična Google Gemini AI modela na jednom mestu. Aplikacija služi kao ultimativni katalog i živi tester (playground) za eksperimentisanje sa tekstualnim, vizuelnim i audio funkcijama najnovijih Gemini modela.
 
 ## 🚀 Mogućnosti Aplikacije
 
