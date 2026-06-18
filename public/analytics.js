@@ -41,7 +41,8 @@
 
       loadPostHogStub();
       window.posthog.init(cfg.key, {
-        api_host: cfg.host,
+        api_host: cfg.api_host,
+        ui_host: cfg.ui_host,
         defaults: '2026-01-30',
         person_profiles: 'identified_only',
       });

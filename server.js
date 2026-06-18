@@ -4,6 +4,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import Database from 'better-sqlite3';
 import posthog from './posthog.js';
+import { POSTHOG_PROXY_PATH, posthogProxyHandler } from './posthog-proxy.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -11,6 +12,13 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 const db = new Database('models.db');
+
+// PostHog reverse proxy (pre static/json — ad blocker bypass)
+app.use(
+  POSTHOG_PROXY_PATH,
+  express.raw({ type: '*/*', limit: '64mb' }),
+  posthogProxyHandler
+);
 
 app.use(express.json({ limit: '10mb' }));
 
@@ -27,13 +35,17 @@ app.use(express.static(join(__dirname, 'public')));
 // PostHog analytics config (project token is safe to expose to the browser)
 app.get('/api/analytics-config', (req, res) => {
   const key = process.env.POSTHOG_PROJECT_TOKEN || process.env.POSTHOG_API_KEY;
-  const host = process.env.POSTHOG_HOST || 'https://eu.i.posthog.com';
 
   if (!key) {
     return res.json({ enabled: false });
   }
 
-  res.json({ enabled: true, key, host });
+  res.json({
+    enabled: true,
+    key,
+    api_host: POSTHOG_PROXY_PATH,
+    ui_host: 'https://eu.posthog.com',
+  });
 });
 
 // 0. Specs route - fetches model specs from SQLite database
