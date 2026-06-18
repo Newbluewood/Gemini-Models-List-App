@@ -1,5 +1,21 @@
 // ─── Aplikacija za Testiranje Gemini API ────────────────────────────
 
+function trackEvent(event, properties = {}) {
+  if (typeof window.trackEvent === 'function') {
+    window.trackEvent(event, properties);
+  }
+}
+
+function sanitizeErrorForAnalytics(error) {
+  const msg = typeof error === 'string' ? error : (error?.message || 'unknown');
+  return msg.slice(0, 200);
+}
+
+function getAnalyticsHeaders() {
+  const id = window.posthog?.get_distinct_id?.();
+  return id ? { 'x-posthog-distinct-id': id } : {};
+}
+
 // ─── Admin Unlock (iz Session Storage) ─────────────
 function getAdminKey() {
   return sessionStorage.getItem('gemini_admin_key') || '';
@@ -580,7 +596,7 @@ async function fetchModels() {
       </div>
     `;
     
-    const res = await fetch('/api/models');
+    const res = await fetch('/api/models', { headers: getAnalyticsHeaders() });
     const data = await res.json();
     
     // Upis u JSON terminal
@@ -611,6 +627,7 @@ async function fetchModels() {
       }
       
       showAlert('success', 'Modeli su uspešno učitani!', `Pronađeno je ${state.models.length} dostupnih modela na vašem Gemini nalogu. Latencija API rute: ${data.latency}ms.`);
+      trackEvent('models_fetched', { model_count: state.models.length, latency_ms: data.latency });
     } else {
       dom.modelsCount.textContent = '0 modela';
       dom.modelsListContainer.innerHTML = `
@@ -622,9 +639,11 @@ async function fetchModels() {
       `;
       const errMsg = typeof data.error === 'object' ? (data.error.message || JSON.stringify(data.error)) : data.error;
       showAlert('danger', 'Greška u preuzimanju modela', errMsg || 'Nije moguće učitati modele.');
+      trackEvent('models_fetch_failed', { error: sanitizeErrorForAnalytics(errMsg || 'unknown') });
     }
   } catch (err) {
     showAlert('danger', 'Mrežna greška', err.message);
+    trackEvent('models_fetch_failed', { error: sanitizeErrorForAnalytics(err.message) });
   } finally {
     dom.btnFetchModels.disabled = false;
     dom.btnFetchModels.innerHTML = '<i class="fa-solid fa-rotate"></i> Preuzmi i Testiraj Modele';
@@ -742,6 +761,7 @@ function selectModel(modelId) {
   state.selectedModel = modelId;
   
   const shortName = modelId.replace('models/', '');
+  trackEvent('model_selected', { model: shortName });
   dom.selectedModelBadge.textContent = shortName;
   dom.selectedModelBadge.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 active-glow';
   dom.selectActiveModel.value = modelId;
@@ -870,6 +890,12 @@ async function submitPrompt() {
   if (!prompt && !state.droppedFile && category !== 'imagen' && category !== 'veo') return;
   if (!model) return;
 
+  trackEvent('prompt_submitted', {
+    model: shortName,
+    category,
+    has_attachment: Boolean(state.droppedFile),
+  });
+
   try {
     dom.btnSubmitPrompt.disabled = true;
     dom.btnSubmitPrompt.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-2"></i> Generišem odgovor sa Gemini...';
@@ -906,7 +932,8 @@ async function submitPrompt() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...getAdminHeaders()
+        ...getAdminHeaders(),
+        ...getAnalyticsHeaders(),
       },
       body: JSON.stringify(requestBody)
     });
@@ -962,9 +989,15 @@ async function submitPrompt() {
           </div>
         </div>
       `;
+      trackEvent('prompt_failed', {
+        model: shortName,
+        category,
+        error: sanitizeErrorForAnalytics(data.error?.message || data.error || 'unknown'),
+      });
     }
   } catch (err) {
     dom.outputResponse.innerHTML = `<span class="text-rose-400">Mrežna greška: ${err.message}</span>`;
+    trackEvent('prompt_failed', { model: shortName, category, error: sanitizeErrorForAnalytics(err.message) });
   } finally {
     dom.btnSubmitPrompt.disabled = false;
     dom.btnSubmitPrompt.innerHTML = '<i class="fa-solid fa-bolt text-xs"></i> Pošalji Zahtev Modelu';
@@ -1370,6 +1403,7 @@ document.addEventListener('DOMContentLoaded', init);
     if (dontShowChk && dontShowChk.checked) {
       localStorage.setItem('gemini_welcome_hidden', '1');
     }
+    trackEvent('welcome_modal_closed', { dont_show_again: Boolean(dontShowChk?.checked) });
   }
 
   closeBtn.addEventListener('click', closeModal);

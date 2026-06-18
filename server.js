@@ -3,6 +3,7 @@ import express from 'express';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import Database from 'better-sqlite3';
+import posthog from './posthog.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -22,6 +23,18 @@ app.use((req, res, next) => {
 app.use(express.static(join(__dirname, 'public')));
 
 // ─── API Routes ─────────────────────────────────────────────────────
+
+// PostHog analytics config (project token is safe to expose to the browser)
+app.get('/api/analytics-config', (req, res) => {
+  const key = process.env.POSTHOG_PROJECT_TOKEN || process.env.POSTHOG_API_KEY;
+  const host = process.env.POSTHOG_HOST || 'https://eu.i.posthog.com';
+
+  if (!key) {
+    return res.json({ enabled: false });
+  }
+
+  res.json({ enabled: true, key, host });
+});
 
 // 0. Specs route - fetches model specs from SQLite database
 app.get('/api/specs', (req, res) => {
@@ -75,6 +88,8 @@ app.get('/api/models', async (req, res) => {
     return res.status(400).json({ error: 'GEMINI_API_KEY nije konfigurisan u .env fajlu.' });
   }
 
+  const userIp = getRateLimitKey(req);
+  const analyticsId = getAnalyticsDistinctId(req, userIp);
   const startTime = Date.now();
   const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
 
@@ -90,6 +105,11 @@ app.get('/api/models', async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
+      posthog.capture({
+        distinctId: analyticsId,
+        event: 'models_listed_error',
+        properties: { status: response.status, latency_ms: latency },
+      });
       return res.status(response.status).json({
         error: data.error?.message || data.error || 'Greška pri komunikaciji sa Gemini API.',
         status: response.status,
@@ -98,6 +118,11 @@ app.get('/api/models', async (req, res) => {
       });
     }
 
+    posthog.capture({
+      distinctId: analyticsId,
+      event: 'models_listed',
+      properties: { model_count: (data.models || []).length, latency_ms: latency },
+    });
     res.json({
       success: true,
       models: data.models || [],
@@ -110,6 +135,11 @@ app.get('/api/models', async (req, res) => {
     });
   } catch (error) {
     const latency = Date.now() - startTime;
+    posthog.capture({
+      distinctId: analyticsId,
+      event: 'models_listed_error',
+      properties: { error_type: 'network_or_system', latency_ms: latency },
+    });
     res.status(500).json({
       error: `Sistemska greška: ${error.message}`,
       latency
@@ -127,6 +157,14 @@ const rateLimitStore = {};
 
 function getRateLimitKey(req) {
   return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || req.connection?.remoteAddress || 'unknown';
+}
+
+function getAnalyticsDistinctId(req, fallbackIp) {
+  const header = req.headers['x-posthog-distinct-id'];
+  if (typeof header === 'string' && header.trim()) {
+    return header.trim().slice(0, 200);
+  }
+  return fallbackIp;
 }
 
 function checkRateLimit(ip, category, adminKey) {
@@ -266,9 +304,15 @@ app.post('/api/generate', async (req, res) => {
 
   // ─── Rate Limit provera za premium modele ───
   const userIp = getRateLimitKey(req);
+  const analyticsId = getAnalyticsDistinctId(req, userIp);
   const adminKey = req.headers['x-admin-key'] || '';
   const rateCheck = checkRateLimit(userIp, category, adminKey);
   if (!rateCheck.allowed) {
+    posthog.capture({
+      distinctId: analyticsId,
+      event: 'rate_limit_hit',
+      properties: { category, model: shortName, reset_in_minutes: rateCheck.resetInMinutes },
+    });
     return res.status(429).json({
       error: rateCheck.message,
       rateLimited: true,
@@ -377,6 +421,11 @@ app.post('/api/generate', async (req, res) => {
       const errMsg = typeof data.error === 'object'
         ? (data.error.message || JSON.stringify(data.error))
         : data.error;
+      posthog.capture({
+        distinctId: analyticsId,
+        event: 'generation_failed',
+        properties: { model: shortName, category, status: response.status, latency_ms: latency },
+      });
       return res.status(response.status).json({
         error: errMsg || 'Greška pri generisanju sadržaja.',
         status: response.status, latency,
@@ -391,6 +440,11 @@ app.post('/api/generate', async (req, res) => {
       recordUsage(userIp, category);
     }
 
+    posthog.capture({
+      distinctId: analyticsId,
+      event: 'generation_succeeded',
+      properties: { model: shortName, category, latency_ms: latency, is_admin: !!rateCheck.unlimited },
+    });
     res.json({
       success: true,
       category,
@@ -401,6 +455,11 @@ app.post('/api/generate', async (req, res) => {
 
   } catch (error) {
     const latency = Date.now() - startTime;
+    posthog.capture({
+      distinctId: analyticsId,
+      event: 'generation_failed',
+      properties: { model: shortName, category, status: 500, error_type: 'system', latency_ms: latency },
+    });
     res.status(500).json({ error: `Sistemska greška: ${error.message}`, latency });
   }
 });
@@ -430,3 +489,6 @@ app.listen(PORT, () => {
   console.log('  🚀  ==================================================');
   console.log('');
 });
+
+process.on('SIGTERM', async () => { await posthog.shutdown(); process.exit(0); });
+process.on('SIGINT',  async () => { await posthog.shutdown(); process.exit(0); });
