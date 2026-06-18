@@ -5,13 +5,30 @@ import { fileURLToPath } from 'url';
 import Database from 'better-sqlite3';
 import posthog from './posthog.js';
 import { POSTHOG_PROXY_PATH, posthogProxyHandler } from './posthog-proxy.js';
+import {
+  generateBodySchema,
+  normalizeModelName,
+  operationNameSchema,
+  validateBody,
+} from './validation.js';
+import {
+  adminVerifyRateLimiter,
+  apiRateLimiter,
+  generateRateLimiter,
+  modelsRateLimiter,
+  safeCompareSecret,
+  securityHeaders,
+} from './security.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 const db = new Database('models.db');
+
+app.use(securityHeaders);
 
 // PostHog reverse proxy (pre static/json — ad blocker bypass)
 app.use(
@@ -29,6 +46,8 @@ app.use((req, res, next) => {
 });
 
 app.use(express.static(join(__dirname, 'public')));
+
+app.use('/api', apiRateLimiter);
 
 // ─── API Routes ─────────────────────────────────────────────────────
 
@@ -94,7 +113,7 @@ app.get('/api/status', (req, res) => {
 });
 
 // 2. Models route - fetches available models from the Gemini API
-app.get('/api/models', async (req, res) => {
+app.get('/api/models', modelsRateLimiter, async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return res.status(400).json({ error: 'GEMINI_API_KEY nije konfigurisan u .env fajlu.' });
@@ -184,7 +203,7 @@ function checkRateLimit(ip, category, adminKey) {
 
   // Admin bypass — ako ADMIN_SECRET postoji u .env i poklapa se
   const adminSecret = process.env.ADMIN_SECRET;
-  if (adminSecret && adminKey === adminSecret) {
+  if (adminSecret && safeCompareSecret(String(adminKey), adminSecret)) {
     return { allowed: true, unlimited: true };
   }
 
@@ -239,7 +258,7 @@ app.get('/api/rate-status', (req, res) => {
   const ip = getRateLimitKey(req);
   const adminKey = req.headers['x-admin-key'] || '';
   const adminSecret = process.env.ADMIN_SECRET;
-  const isAdmin = adminSecret && adminKey === adminSecret;
+  const isAdmin = adminSecret && safeCompareSecret(String(adminKey), adminSecret);
 
   const status = { unlimited: isAdmin };
   for (const cat of PREMIUM_CATEGORIES) {
@@ -259,10 +278,10 @@ app.get('/api/rate-status', (req, res) => {
 });
 
 // API ruta: verifikuj admin ključ
-app.post('/api/verify-admin', (req, res) => {
+app.post('/api/verify-admin', adminVerifyRateLimiter, (req, res) => {
   const { key } = req.body;
   const adminSecret = process.env.ADMIN_SECRET;
-  if (adminSecret && key === adminSecret) {
+  if (adminSecret && safeCompareSecret(String(key || ''), adminSecret)) {
     res.json({ valid: true, message: '🔓 Admin pristup otključan! Nemate ograničenja.' });
   } else {
     res.status(401).json({ valid: false, message: 'Neispravan admin ključ.' });
@@ -290,27 +309,32 @@ function getModelRouter(shortName) {
 }
 
 // 3. Generate route — Smart Router za sve Gemini API endpoint varijante
-app.post('/api/generate', async (req, res) => {
+app.post('/api/generate', generateRateLimiter, validateBody(generateBodySchema), async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return res.status(400).json({ error: 'GEMINI_API_KEY nije konfigurisan u .env fajlu.' });
   }
 
-  let { model, prompt, temperature, maxOutputTokens, inlineData,
-        // Imagen/Veo parametri
-        aspectRatio, numberOfImages, numberOfVideos, videoDuration, personGeneration,
-        // TTS parametri
-        voiceName, responseModalities,
-        // AQA parametri
-        answerStyle } = req.body;
+  const {
+    model,
+    prompt,
+    temperature,
+    maxOutputTokens,
+    inlineData,
+    aspectRatio,
+    numberOfImages,
+    numberOfVideos,
+    videoDuration,
+    personGeneration,
+    voiceName,
+    responseModalities,
+    answerStyle,
+  } = req.body;
 
-  if (!prompt && !inlineData) {
-    return res.status(400).json({ error: 'Prompt ili fajl su obavezni.' });
+  const formattedModel = normalizeModelName(model);
+  if (!formattedModel) {
+    return res.status(400).json({ error: 'Neispravan naziv modela.' });
   }
-
-  if (!model) model = 'models/gemini-2.5-flash';
-
-  const formattedModel = model.startsWith('models/') ? model : `models/${model}`;
   const shortName = formattedModel.replace('models/', '');
   const { method, category } = getModelRouter(shortName);
 
@@ -479,10 +503,12 @@ app.post('/api/generate', async (req, res) => {
 // 4. Operation polling route — za Veo :predictLongRunning
 app.get('/api/operation', async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY;
-  const { name } = req.query; // npr. "operations/xyz123"
-  if (!name) return res.status(400).json({ error: 'Operation name je obavezan.' });
-
-  const url = `https://generativelanguage.googleapis.com/v1beta/${name}?key=${apiKey}`;
+  const { name } = req.query;
+  const parsed = operationNameSchema.safeParse(name);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.issues[0]?.message || 'Operation name je obavezan.' });
+  }
+  const url = `https://generativelanguage.googleapis.com/v1beta/${parsed.data}?key=${apiKey}`;
   try {
     const response = await fetch(url);
     const data = await response.json();
